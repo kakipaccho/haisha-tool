@@ -261,8 +261,8 @@ padding: 2px;
 }
 
   .full {
-  background: #fecaca;
-  border: 2px solid #ef4444;
+  background: #acf7a5;
+  border: 2px solid #36b652;
 }
 
  #people-area {
@@ -453,6 +453,8 @@ padding: 2px;
 
   <button onclick="saveData()">💾 保存</button>
   <button onclick="loadData()">📂 読み込み</button>
+  <button onclick="exportData()">📤 書き出し</button>
+　<button onclick="importData()">📥 共有読込</button>
 </div>
 
   <div class="container">
@@ -460,11 +462,9 @@ padding: 2px;
     <div class="top-area">
       <div class="menu-area">
       <details>
-  <summary>🚗 車管理</summary>
+  　　<summary>🚗 車管理</summary>
       <div class="car-form">
-        <h2>🚗 車追加</h2>
-
-        <input type="text" id="carNameInput" placeholder="車名">
+        <input type="text" id="carNameInput" placeholder="追加車名">
 
         <input type="number" id="capacityInput" placeholder="定員">
 
@@ -741,6 +741,23 @@ function loadData() {
 
     alert('読み込みました！');
   }
+}
+
+function exportData() {
+  const data = document.querySelector('.container').innerHTML;
+  const text = btoa(unescape(encodeURIComponent(data)));
+
+  prompt('この文字をコピーして相手に送ってね', text);
+}
+
+function importData() {
+  const text = prompt('受け取った文字を貼り付けてね');
+  if (!text) return;
+
+  const data = decodeURIComponent(escape(atob(text)));
+  document.querySelector('.container').innerHTML = data;
+
+  initialize();
 }
 
 function reSetup() {
