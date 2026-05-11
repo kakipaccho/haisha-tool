@@ -451,7 +451,7 @@ padding: 2px;
   <div class="status-bar">
   <p id="selected-name">選択中：なし</p>
 
-  <button onclick="saveData()">💾 保存</button>
+  <button onclick="saveToSheet()">💾 保存</button>
   <button onclick="loadData()">📂 読み込み</button>
 <button onclick="downloadData()">📤 ファイル書き出し</button>
 <input type="file" id="importFile" accept=".json" onchange="uploadData(event)" style="display:none">
@@ -751,7 +751,7 @@ function downloadData() {
 
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'haisha-data.json';
+  a.download = '配車データ.json';
   a.click();
 
   URL.revokeObjectURL(url);
@@ -776,6 +776,41 @@ function uploadData(event) {
 
   reSetup();
 updateCounts();
+
+async function saveToSheet() {
+
+  const cars = [];
+
+  document.querySelectorAll('.car').forEach(car => {
+
+    const name = car.querySelector('h2').textContent.split('残り')[0].replace('🚗', '').trim();
+
+    const capacity = car.dataset.capacity;
+
+    const remaining = car.querySelector('.count').textContent;
+
+    const members = [];
+
+    car.querySelectorAll('.person').forEach(person => {
+      members.push(person.textContent.trim());
+    });
+
+    cars.push({
+      name,
+      capacity,
+      remaining,
+      members
+    });
+  });
+
+  await fetch('https://script.google.com/macros/s/～～～/exec', {
+  method: 'POST',
+  mode: 'no-cors',
+  body: JSON.stringify({ cars })
+});
+
+  alert('スプレッドシートに保存しました！');
+}
 </script>
 
 </body>
