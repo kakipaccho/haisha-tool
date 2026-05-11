@@ -778,19 +778,18 @@ function uploadData(event) {
 updateCounts();
 
 async function saveToSheet() {
-
   const cars = [];
 
   document.querySelectorAll('.car').forEach(car => {
-
-    const name = car.querySelector('h2').textContent.split('残り')[0].replace('🚗', '').trim();
+    const name = car.querySelector('h2').textContent
+      .split('残り')[0]
+      .replace('🚗', '')
+      .trim();
 
     const capacity = car.dataset.capacity;
-
     const remaining = car.querySelector('.count').textContent;
 
     const members = [];
-
     car.querySelectorAll('.person').forEach(person => {
       members.push(person.textContent.trim());
     });
@@ -804,10 +803,10 @@ async function saveToSheet() {
   });
 
   await fetch('https://script.google.com/macros/s/AKfycbwiL44FlJHSHGdn9tboQEsfH8pt2fLA0X3GxhHZIXFkrh1TRfZ_OY0pUlWdESiSCatT/exec', {
-  method: 'POST',
-  mode: 'no-cors',
-  body: JSON.stringify({ cars })
-});
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify({ cars })
+  });
 
   alert('スプレッドシートに保存しました！');
 }
