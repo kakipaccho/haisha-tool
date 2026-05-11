@@ -453,8 +453,9 @@ padding: 2px;
 
   <button onclick="saveData()">💾 保存</button>
   <button onclick="loadData()">📂 読み込み</button>
-  <button onclick="exportData()">📤 書き出し</button>
-　<button onclick="importData()">📥 共有読込</button>
+<button onclick="downloadData()">📤 ファイル書き出し</button>
+<input type="file" id="importFile" accept=".json" onchange="uploadData(event)" style="display:none">
+<button onclick="document.getElementById('importFile').click()">📥 ファイル読込</button>
 </div>
 
   <div class="container">
@@ -743,27 +744,34 @@ function loadData() {
   }
 }
 
-function exportData() {
+function downloadData() {
   const data = document.querySelector('.container').innerHTML;
-  const text = btoa(unescape(encodeURIComponent(data)));
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
 
-  prompt('この文字をコピーして相手に送ってね', text);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'haisha-data.json';
+  a.click();
+
+  URL.revokeObjectURL(url);
 }
 
-function importData() {
-  const text = prompt('受け取った文字を貼り付けてね');
-  if (!text) return;
+function uploadData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-  const data = decodeURIComponent(escape(atob(text)));
-  document.querySelector('.container').innerHTML = data;
+  const reader = new FileReader();
 
-  initialize();
-}
+  reader.onload = function(e) {
+    document.querySelector('.container').innerHTML = e.target.result;
 
-function reSetup() {
-  document.querySelectorAll('.person').forEach(setupPerson);
+    document.querySelectorAll('.person').forEach(setupPerson);
+    document.querySelectorAll('.dropzone').forEach(setupDropzone);
+    updateCounts();
+  };
 
-  document.querySelectorAll('.dropzone').forEach(setupDropzone);
+  reader.readAsText(file);
 }
 
   reSetup();
