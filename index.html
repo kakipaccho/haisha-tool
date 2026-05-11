@@ -290,6 +290,32 @@ padding: 2px;
   margin-bottom: 12px;
 }
 
+@media (max-width: 600px) {
+  #people-area {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  #people-area .person {
+    width: auto !important;
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 8px 4px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cars-area {
+    display: block;
+  }
+
+  .cars-area .car {
+    width: 100%;
+    margin-top: 16px;
+  }
+}
+
   </style>
 </head>
 
