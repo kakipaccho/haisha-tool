@@ -24,10 +24,24 @@ details {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-summary {
+.menu-area {
+  display: flex;
+  gap: 12px;
+}
+
+.menu-area details {
+  flex: 0 0 180px;
+  padding: 5px 8px;
+  border-radius: 14px;
+}
+
+.menu-area summary {
+  font-size: 15px;
   font-weight: bold;
-  cursor: pointer;
-  font-size: 18px;
+}
+
+.menu-area details {
+  padding: 8px;
 }
 
     .container {
@@ -94,7 +108,8 @@ summary {
   }
 
   .car {
-  min-height: 180px;
+     width: 220px;
+  　min-height: 180px;
 }
 
   .car h2, .people h2, .car-form h2 {
@@ -108,7 +123,7 @@ summary {
   padding: 8px;
   margin-top: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  min-width: 220px;
+
 }
 
 　.waiting-area h2 {
@@ -118,7 +133,16 @@ summary {
 }
 
 #people-area {
-  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+#people-area .person {
+  width: auto;
+  margin: 0;
+  padding: 8px;
+  text-align: center;
 }
 
   .car h2 {
@@ -185,7 +209,7 @@ summary {
 
   .container {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
   align-items: start;
 }
@@ -235,6 +259,36 @@ padding: 2px;
   border: 2px solid #ef4444;
 }
 
+ #people-area {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  gap: 8px;
+}
+
+#people-area .person {
+  width: calc(20% - 8px);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 6px;
+  text-align: center;
+}
+
+.cars-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+
+.cars-area .car {
+  flex: 0 0 220px;
+  width: 220px;
+  margin-bottom: 12px;
+}
 
   </style>
 </head>
@@ -254,6 +308,7 @@ padding: 2px;
   <div class="container">
 
     <div class="top-area">
+      <div class="menu-area">
       <details>
   <summary>🚗 車管理</summary>
       <div class="car-form">
@@ -293,11 +348,13 @@ padding: 2px;
        
       </div>
       </details>
-　　　　<div class="waiting-area">
-  　　　<h2>👦 未配置の子</h2>
+      </div>
+
+<div class="waiting-area">
+ <!-- <h2>👦 未配置の子</h2> -->
 
        <div class="dropzone" id="people-area">
-　　　　　
+
           <div class="person" draggable="true">ゆい</div>
 
           <div class="person" draggable="true">ゆな</div>
@@ -306,22 +363,56 @@ padding: 2px;
 
           <div class="person" draggable="true">はると</div>
 
+        <div class="person" draggable="true">ゆい</div>
+
+          <div class="person" draggable="true">ゆな</div>
+
+          <div class="person" draggable="true">あおい</div>
+
+          <div class="person" draggable="true">はると</div>
+
+        <div class="person" draggable="true">ゆい</div>
+
+          <div class="person" draggable="true">ゆな</div>
+
+          <div class="person" draggable="true">あおい</div>
+
+          <div class="person" draggable="true">はると</div>
+
+        <div class="person" draggable="true">ゆい</div>
+
+          <div class="person" draggable="true">ゆな</div>
+
+          <div class="person" draggable="true">あおい</div>
+
+          <div class="person" draggable="true">はると</div>
+
+          <div class="person" draggable="true">ゆい</div>
+
+          <div class="person" draggable="true">ゆな</div>
+
+          <div class="person" draggable="true">あおい</div>
+
+          <div class="person" draggable="true">はると</div>
+
+
+    
         </div>
 
     </div>
+<div class="cars-area">
 
-    <div class="car" data-capacity="4">
-      <h2>🚗 さや号 残り<span class="count">4</span>席</h2>
+  <div class="car" data-capacity="4">
+    <h2>🚗 さや号 残り<span class="count">4</span>席</h2>
+    <div class="dropzone"></div>
+  </div>
 
-      <div class="dropzone"></div>
-    </div>
+  <div class="car" data-capacity="5">
+    <h2>🚗 たなか号 残り<span class="count">5</span>席</h2>
+    <div class="dropzone"></div>
+  </div>
 
-    <div class="car" data-capacity="5">
-      <h2>🚗 たなか号 残り<span class="count">5</span>席</h2>
-
-      <div class="dropzone"></div>
-    </div>
-
+</div>
   </div>
   
 
