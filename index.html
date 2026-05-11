@@ -107,9 +107,10 @@ details {
     margin-bottom: 8px;
   }
 
-  .car {
-     width: 220px;
-  　min-height: 180px;
+ .car {
+  width: 100%;
+  max-width: 220px;
+  min-height: 180px;
 }
 
   .car h2, .people h2, .car-form h2 {
@@ -126,7 +127,12 @@ details {
 
 }
 
-　.waiting-area h2 {
+.car .dropzone {
+  min-height: 120px;
+  padding: 8px;
+}
+
+.waiting-area h2 {
   font-size: 14px;
   margin: 0 0 6px;
   line-height: 1.2;
@@ -294,14 +300,14 @@ padding: 2px;
   #people-area {
     display: grid !important;
     grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
+    gap: 4px;
   }
 
   #people-area .person {
     width: auto !important;
     white-space: nowrap;
     font-size: 12px;
-    padding: 6px 2px;
+    padding: 8px 4px;
   }
 }
 
