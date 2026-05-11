@@ -663,10 +663,7 @@ function setupDropzone(zone) {
     const zone = newCar.querySelector('.dropzone');
     setupDropzone(zone);
 
-    document.querySelector('.container').insertBefore(
-      newCar,
-      document.querySelector('.people')
-    );
+    document.querySelector('.cars-area').appendChild(newCar);
 
     carNameInput.value = '';
     capacityInput.value = '';
