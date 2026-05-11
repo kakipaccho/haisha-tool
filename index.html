@@ -290,10 +290,6 @@ padding: 2px;
   margin-top: 16px;
 }
 
-.cars-area .car {
-  flex: 0 0 140px;
-  width: 140px;
-}
 
 @media (max-width: 600px) {
   #people-area {
@@ -390,6 +386,13 @@ padding: 2px;
 .cars-area .car {
   flex: 0 0 120px !important;
   width: 120px !important;
+}
+
+@media (max-width: 600px) {
+  .cars-area .car {
+    flex: 0 0 calc(25% - 8px) !important;
+    width: calc(25% - 8px) !important;
+  }
 }
 
   </style>
