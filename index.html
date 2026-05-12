@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>配車ツール</title>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #eef2f7;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+    
+details {
+  background: white;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.menu-area {
+  display: flex;
+  gap: 12px;
+}
+
+.menu-area details {
+  flex: 0 0 180px;
+  padding: 5px 8px;
+  border-radius: 14px;
+}
+
+.menu-area summary {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.menu-area details {
+  padding: 8px;
+}
+
+    .container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .car, .people, .car-form {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      min-width: 260px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .dropzone {
+  min-height: 100px;
+  border: 3px dashed #999;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.person {
+  background: #0284c7;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 4px;
+  margin: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
+    input, button {
+      padding: 8px;
+      margin: 4px 0;
+    }
+    @media (max-width: 600px) {
+  body {
+    padding: 8px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+  .car, .people, .car-form {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+
+ .car {
+  width: 100%;
+  max-width: 220px;
+  min-height: 180px;
+}
+
+  .car h2, .people h2, .car-form h2 {
+    font-size: 17px;
+    margin: 6px 0;
+  }
+
+   .waiting-area {
+  background: white;
+  border-radius: 12px;
+  padding: 8px;
+  margin-top: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+}
+
+.car .dropzone {
+  min-height: 120px;
+  padding: 8px;
+}
+
+.waiting-area h2 {
+  font-size: 14px;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+
+#people-area {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+#people-area .person {
+  width: auto;
+  margin: 0;
+  padding: 8px;
+  text-align: center;
+}
+
+  .car h2 {
+  font-size: 14px;
+}
+
+  input, button {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+    margin: 5px 0;
+    padding: 8px;
+  }
+
+  .dropzone {
+  min-height: 100px;
+  padding: 4px;
+  border: 3px dashed #999;
+  border-radius: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+  .person {
+  background: #0284c7;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 4px;
+  margin: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
+ .car-form,
+.people {
+  grid-column: 1 / -1;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-bar p {
+  margin: 0;
+}
+
+.status-bar button {
+  width: auto;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+}
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+  .car, .people, .car-form {
+    width: auto;
+    min-width: unset;
+    margin-bottom: 15px;
+  }
+
+  input, button {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+    margin: 6px 0;
+  }
+
+  .person {
+  background: #0284c7;
+  color: white;
+
+   font-size: 9px;
+padding: 2px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+  .person {
+  background: #0284c7;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 4px;
+  margin: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
+  .selected {
+  outline: 3px solid #facc15;
+  box-shadow: 0 0 12px #facc15;
+}
+
+  .full {
+  background: #acf7a5;
+  border: 2px solid #36b652;
+}
+
+ #people-area {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  gap: 8px;
+}
+
+#people-area .person {
+  width: calc(20% - 8px);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 6px;
+  text-align: center;
+}
+
+.cars-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+
+
+@media (max-width: 600px) {
+  #people-area {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+
+  #people-area .person {
+    width: auto !important;
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 8px 4px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cars-area {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+
+
+@media (max-width: 600px) {
+  .waiting-area {
+    width: calc(100vw - 20px);
+    max-width: none;
+    box-sizing: border-box;
+  }
+
+  #people-area {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 600px) {
+  #people-area {
+    min-width: 100%;
+  }
+}
+
+.menu-area {
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.menu-area details {
+  flex: 0 0 160px;
+  padding: 6px 8px;
+  border-radius: 14px;
+}
+
+.menu-area summary {
+  font-size: 15px;
+  padding: 2px 0;
+}
+
+@media (max-width: 600px) {
+  .menu-area {
+    gap: 6px;
+  }
+
+  .menu-area details {
+    flex: 0 0 46%;
+    padding: 6px 6px;
+    border-radius: 14px;
+  }
+
+  .menu-area summary {
+    font-size: 14px;
+  }
+}
+@media (max-width: 600px) {
+  #people-area {
+    min-height: 140px;
+    padding: 10px;
+    touch-action: none;
+  }
+
+  .car .dropzone {
+    min-height: 140px;
+    padding: 10px;
+    touch-action: none;
+  }
+
+  .person {
+    touch-action: none;
+  }
+}
+.cars-area .car {
+  flex: 0 0 120px !important;
+  width: 120px !important;
+}
+
+@media (max-width: 600px) {
+  .cars-area .car {
+    flex: 0 0 calc(25% - 8px) !important;
+    width: calc(25% - 8px) !important;
+  }
+}
+
+.person.brass {
+  background: #f6b73c;
+}
+
+.person.woodwind {
+  background: #2aa876;
+}
+
+.person.other {
+  background: #8b7cf6;
+}
+
+.menu-area input,
+.menu-area button {
+  font-size: 13px;
+  padding: 4px 6px;
+  margin: 3px 0;
+}
+
+.menu-area label,
+.menu-area p {
+  font-size: 13px;
+  margin: 4px 0;
+}
+
+.menu-area h2,
+.menu-area h3 {
+  font-size: 14px;
+  margin: 6px 0;
+}
+
+.menu-area .car-form,
+.menu-area .people {
+  padding: 6px;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 600px) {
+  .menu-area input,
+  .menu-area button {
+    font-size: 12px;
+    padding: 3px 5px;
+  }
+}
+
+  </style>
+</head>
+
+
+<body>
+
+  <h1>🚗 配車ツール</h1>
+
+  <div class="status-bar">
+  <p id="selected-name">選択中：なし</p>
+
+  <button onclick="saveToSheet()">💾 保存</button>
+  <button onclick="loadData()">📂 読み込み</button>
+<button onclick="downloadData()">📤 ファイル書き出し</button>
+<input type="file" id="importFile" accept=".json" onchange="uploadData(event)" style="display:none">
+<button onclick="document.getElementById('importFile').click()">📥 ファイル読込</button>
+</div>
+
+  <div class="container">
+
+    <div class="top-area">
+      <div class="menu-area">
+      <details>
+  　　<summary>🚗 車管理</summary>
+      <div class="car-form">
+        <input type="text" id="carNameInput" placeholder="追加車名">
+
+        <input type="number" id="capacityInput" placeholder="定員">
+
+        <button onclick="addCar()">車追加</button>
+
+        <br><br>
+
+        <input type="text" id="deleteCarInput" placeholder="削除する車名">
+
+        <button onclick="deleteCar()">車削除</button>
+      </div>
+
+      </details>
+       <details>
+        <summary>👦 参加者</summary>
+      <div class="people">
+        
+
+        <input type="text" id="nameInput" placeholder="名前を入力">
+
+        <button onclick="addPerson()">追加</button>
+
+        <br><br>
+
+        <input type="text" id="deleteInput" placeholder="削除する名前">
+
+        <button onclick="deletePerson()">削除</button>
+
+        <br><br>
+
+       
+      </div>
+      </details>
+      </div>
+
+<div class="waiting-area">
+ <!-- <h2>👦 未配置の子</h2> -->
+
+       <div class="dropzone" id="people-area">
+
+    <div class="person brass" draggable="true">ゆい</div>
+    <div class="person brass" draggable="true">ゆい</div>
+    <div class="person woodwind" draggable="true">ゆな</div>
+    <div class="person other" draggable="true">あおい</div>
+    <div class="person brass" draggable="true">ゆい</div>
+    <div class="person brass" draggable="true">ゆい</div>
+    <div class="person woodwind" draggable="true">ゆな</div>
+    <div class="person other" draggable="true">あおい</div>
+    <div class="person brass" draggable="true">ゆい</div>
+    <div class="person brass" draggable="true">ゆい</div>
+    <div class="person woodwind" draggable="true">ゆな</div>
+    <div class="person other" draggable="true">あおい</div> 
+    <div class="person other" draggable="true">あおい</div>
+    <div class="person brass" draggable="true">ゆい</div>
+    <div class="person brass" draggable="true">ゆい</div>
+    <div class="person woodwind" draggable="true">ゆな</div>
+    <div class="person other" draggable="true">あおい</div> 
+    <div class="person brass" draggable="true">ゆい</div>
+    <div class="person woodwind" draggable="true">ゆな</div>
+    <div class="person other" draggable="true">あおい</div> 
+
+        </div>
+
+    </div>
+<div class="cars-area">
+  <div class="car" data-capacity="4">
+    <h2>🚗 さや号 残り<span class="count">4</span>席</h2>
+    <div class="dropzone"></div>
+  </div>
+
+  <div class="car" data-capacity="5">
+    <h2>🚗 たなか号 残り<span class="count">5</span>席</h2>
+    <div class="dropzone"></div>
+  </div>
+
+</div>
+  </div>
+  
+
+ <script>
+  let draggedItem = null;
+  let selectedPerson = null;
+
+ function setupPerson(person) {
+  person.addEventListener('dragstart', () => {
+    draggedItem = person;
+  });
+
+  function selectThisPerson(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    document.querySelectorAll('.person').forEach(p => {
+  p.classList.remove('selected');
+});
+    selectedPerson = person;
+
+    person.classList.add('selected');
+
+    const selectedName = document.getElementById('selected-name');
+    if (selectedName) {
+      selectedName.textContent = `選択中：${person.textContent}`;
+    }
+  }
+
+  person.addEventListener('click', selectThisPerson);
+  person.addEventListener('touchstart', selectThisPerson);
+}
+
+function setupDropzone(zone) {
+  zone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+  });
+
+  zone.addEventListener('drop', () => {
+    if (draggedItem) {
+      zone.appendChild(draggedItem);
+      draggedItem = null;
+      updateCounts();
+    }
+  });
+
+  zone.addEventListener('click', moveSelectedPerson);
+  zone.addEventListener('touchstart', moveSelectedPerson);
+
+  function moveSelectedPerson(e) {
+    const parentCar = zone.closest('.car');
+
+   if (selectedPerson) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      zone.appendChild(selectedPerson);
+
+      selectedPerson.classList.remove('selected');
+
+      selectedPerson = null;
+
+      const selectedName = document.getElementById('selected-name');
+      if (selectedName) {
+        selectedName.textContent = '選択中：なし';
+      }
+
+      updateCounts();
+    }
+  }
+}
+  document.querySelectorAll('.person').forEach(setupPerson);
+  document.querySelectorAll('.dropzone').forEach(setupDropzone);
+
+  function updateCounts() {
+    const cars = document.querySelectorAll('.car');
+
+    cars.forEach(car => {
+      const capacity = Number(car.dataset.capacity);
+      const people = car.querySelectorAll('.person').length;
+      const remaining = capacity - people;
+      const count = car.querySelector('.count');
+
+      count.textContent = remaining;
+
+        if (remaining <= 0) {
+  car.classList.add('full');
+} else {
+  car.classList.remove('full');
+}
+    });
+  }
+
+  function addPerson() {
+    const input = document.getElementById('nameInput');
+    const name = input.value.trim();
+
+    if (name === '') return;
+
+    const newPerson = document.createElement('div');
+    newPerson.className = 'person';
+    newPerson.draggable = true;
+    newPerson.textContent = name;
+
+    setupPerson(newPerson);
+    document.getElementById('people-area').appendChild(newPerson);
+
+    input.value = '';
+  }
+
+  function deletePerson() {
+    const input = document.getElementById('deleteInput');
+    const name = input.value.trim();
+
+    if (name === '') return;
+
+    document.querySelectorAll('.person').forEach(person => {
+      if (person.textContent === name) {
+        person.remove();
+      }
+    });
+
+    updateCounts();
+    input.value = '';
+  }
+
+  function addCar() {
+    const carNameInput = document.getElementById('carNameInput');
+    const capacityInput = document.getElementById('capacityInput');
+
+    const carName = carNameInput.value.trim();
+    const capacity = capacityInput.value;
+
+    if (carName === '' || capacity === '') return;
+
+    const newCar = document.createElement('div');
+    newCar.className = 'car';
+    newCar.dataset.capacity = capacity;
+
+    newCar.innerHTML = `
+      <h2>🚗 ${carName} 残り<span class="count">${capacity}</span>席</h2>
+      <div class="dropzone"></div>
+    `;
+
+    const zone = newCar.querySelector('.dropzone');
+    setupDropzone(zone);
+
+    document.querySelector('.cars-area').appendChild(newCar);
+
+    carNameInput.value = '';
+    capacityInput.value = '';
+
+    updateCounts();
+  }
+
+  function deleteCar() {
+    const input = document.getElementById('deleteCarInput');
+    const carName = input.value.trim();
+
+    if (carName === '') return;
+
+    document.querySelectorAll('.car').forEach(car => {
+      const title = car.querySelector('h2').textContent;
+
+      if (title.includes(carName)) {
+        const peopleInCar = car.querySelectorAll('.person');
+        const peopleArea = document.getElementById('people-area');
+
+        peopleInCar.forEach(person => {
+          peopleArea.appendChild(person);
+        });
+
+        car.remove();
+      }
+    });
+
+    input.value = '';
+    updateCounts();
+  }
+
+  function saveData() {
+  const data = document.querySelector('.container').innerHTML;
+
+  localStorage.setItem('haishaData', data);
+
+  alert('保存しました！');
+}
+
+function loadData() {
+  const savedData = localStorage.getItem('haishaData');
+
+  if (savedData) {
+    document.querySelector('.container').innerHTML = savedData;
+
+    reSetup();
+
+    updateCounts();
+
+    alert('読み込みました！');
+  }
+}
+
+function downloadData() {
+  const data = document.querySelector('.container').innerHTML;
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '配車データ.json';
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function uploadData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    document.querySelector('.container').innerHTML = e.target.result;
+
+    document.querySelectorAll('.person').forEach(setupPerson);
+    document.querySelectorAll('.dropzone').forEach(setupDropzone);
+    updateCounts();
+  };
+
+  reader.readAsText(file);
+}
+
+  reSetup();
+updateCounts();
+
+async function saveToSheet() {
+  const cars = [];
+
+  document.querySelectorAll('.car').forEach(car => {
+    const name = car.querySelector('h2').textContent
+      .split('残り')[0]
+      .replace('🚗', '')
+      .trim();
+
+    const capacity = car.dataset.capacity;
+    const remaining = car.querySelector('.count').textContent;
+
+    const members = [];
+    car.querySelectorAll('.person').forEach(person => {
+      members.push(person.textContent.trim());
+    });
+
+    cars.push({
+      name,
+      capacity,
+      remaining,
+      members
+    });
+  });
+
+  await fetch('https://script.google.com/macros/s/AKfycbwiL44FlJHSHGdn9tboQEsfH8pt2fLA0X3GxhHZIXFkrh1TRfZ_OY0pUlWdESiSCatT/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify({ cars })
+  });
+
+  alert('スプレッドシートに保存しました！');
+}
+</script>
+
+</body>
+</html>
