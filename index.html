@@ -559,7 +559,7 @@ loadEvents();
 
 async function loadEvents() {
 
-  const response = await fetch(https://script.google.com/macros/s/AKfycbwiL44FlJHSHGdn9tboQEsfH8pt2fLA0X3GxhHZIXFkrh1TRfZ_OY0pUlWdESiSCatT/exec);
+  const response = await fetch(GAS_URL);
   const data = await response.json();
 
   const select = document.getElementById('event-select');
