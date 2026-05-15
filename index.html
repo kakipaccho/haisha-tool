@@ -556,6 +556,31 @@ padding: 2px;
    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwiL44FlJHSHGdn9tboQEsfH8pt2fLA0X3GxhHZIXFkrh1TRfZ_OY0pUlWdESiSCatT/exec';
 
 loadEvents();
+   
+   function createCars(data, selectedEvent) {
+  const carsArea = document.querySelector('.cars-area');
+
+  carsArea.innerHTML = '';
+
+  const drivers = data.filter(item =>
+    item.event === selectedEvent &&
+    item.availability &&
+    item.availability.includes('可能')
+  );
+
+  drivers.forEach(item => {
+    const car = document.createElement('div');
+    car.className = 'car';
+    car.dataset.capacity = item.capacity;
+
+    car.innerHTML = `
+      <h2>🚗 ${item.child}号 残り<span class="count">${item.capacity}</span>席</h2>
+      <div class="dropzone"></div>
+    `;
+
+    carsArea.appendChild(car);
+  });
+}
 
 async function loadEvents() {
 
@@ -576,8 +601,14 @@ async function loadEvents() {
     option.textContent = eventName;
 
     select.appendChild(option);
-
+    
   });
+
+  select.addEventListener('change', () => {
+  createCars(data, select.value);
+});
+
+createCars(data, select.value);
 
 }
   let draggedItem = null;
