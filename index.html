@@ -553,6 +553,33 @@ padding: 2px;
   
 
  <script>
+   const GAS_URL = 'https://script.google.com/macros/s/AKfycbwiL44FlJHSHGdn9tboQEsfH8pt2fLA0X3GxhHZIXFkrh1TRfZ_OY0pUlWdESiSCatT/exec';
+
+loadEvents();
+
+async function loadEvents() {
+
+  const response = await fetch(https://script.google.com/macros/s/AKfycbwiL44FlJHSHGdn9tboQEsfH8pt2fLA0X3GxhHZIXFkrh1TRfZ_OY0pUlWdESiSCatT/exec);
+  const data = await response.json();
+
+  const select = document.getElementById('event-select');
+
+  const events = [...new Set(data.map(item => item.event))];
+
+  select.innerHTML = '';
+
+  events.forEach(eventName => {
+
+    const option = document.createElement('option');
+
+    option.value = eventName;
+    option.textContent = eventName;
+
+    select.appendChild(option);
+
+  });
+
+}
   let draggedItem = null;
   let selectedPerson = null;
 
