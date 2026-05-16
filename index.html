@@ -450,7 +450,7 @@ padding: 2px;
 
   <div class="status-bar">
   <p id="selected-name">選択中：なし</p>
-
+　<p id="seat-summary">確保席：0席 / 残席：0席</p>
   <button onclick="saveToSheet()">💾 保存</button>
 </div>
 
@@ -647,7 +647,37 @@ function setupDropzone(zone) {
     if (draggedItem) {
       zone.appendChild(draggedItem);
       draggedItem = null;
-      updateCounts();
+      function updateCounts() {
+  const cars = document.querySelectorAll('.car');
+
+  let totalCapacity = 0;
+  let totalUsed = 0;
+
+  cars.forEach(car => {
+    const capacity = Number(car.dataset.capacity);
+    const people = car.querySelectorAll('.person').length;
+    const remaining = capacity - people;
+    const count = car.querySelector('.count');
+
+    totalCapacity += capacity;
+    totalUsed += people;
+
+    count.textContent = remaining;
+
+    if (remaining <= 0) {
+      car.classList.add('full');
+    } else {
+      car.classList.remove('full');
+    }
+  });
+
+  const totalRemaining = totalCapacity - totalUsed;
+  const summary = document.getElementById('seat-summary');
+
+  if (summary) {
+    summary.textContent = `確保席：${totalCapacity}席 / 使用中：${totalUsed}席 / 残席：${totalRemaining}席`;
+  }
+}
     }
   });
 
