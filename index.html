@@ -265,6 +265,11 @@ padding: 2px;
   border: 2px solid #36b652;
 }
 
+    .disabled-car {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+    
  #people-area {
   display: flex !important;
   flex-direction: row !important;
@@ -574,10 +579,12 @@ loadEvents();
   `;
 
   const zone = car.querySelector('.dropzone');
-  setupDropzone(zone);
+ setupDropzone(zone);
+setupCarToggle(car);
 
-  carsArea.appendChild(car);
+carsArea.appendChild(car);
 });
+     
      updateCounts();
 }
 
@@ -678,6 +685,15 @@ function setupDropzone(zone) {
 document.querySelectorAll('.person').forEach(setupPerson);
 document.querySelectorAll('.dropzone').forEach(setupDropzone);
 
+function setupCarToggle(car) {
+  car.addEventListener('dblclick', () => {
+
+    car.classList.toggle('disabled-car');
+
+    updateCounts();
+  });
+}
+   
 function updateCounts() {
   const cars = document.querySelectorAll('.car');
 
@@ -690,6 +706,7 @@ function updateCounts() {
     const remaining = capacity - people;
     const count = car.querySelector('.count');
 
+    if (car.classList.contains('disabled-car')) return;
     totalCapacity += capacity;
     totalUsed += people;
 
@@ -767,8 +784,9 @@ if (summary) {
 
     const zone = newCar.querySelector('.dropzone');
     setupDropzone(zone);
+　setupCarToggle(newCar);
 
-    document.querySelector('.cars-area').appendChild(newCar);
+document.querySelector('.cars-area').appendChild(newCar);
 
     carNameInput.value = '';
     capacityInput.value = '';
