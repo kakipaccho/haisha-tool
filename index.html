@@ -560,12 +560,12 @@ loadEvents();
     if (item.familyName === '人') return;
     const car = document.createElement('div');
     car.className = 'car';
-    car.dataset.capacity = item.capacity;
+    car.dataset.capacity = Number(item.capacity) || 0;
 
     car.innerHTML = `
   <h2>
     🚗 ${item.familyName}<br>
-    <span class="remaining-text">残<span class="count">${item.capacity}</span>席</span>
+    <span class="remaining-text">残<span class="count">${Number(item.capacity) || 0}</span>席</span>
   </h2>
   <div class="dropzone"></div>
 `;
@@ -744,7 +744,7 @@ function setupDropzone(zone) {
     newCar.innerHTML = `
       <h2>
   🚗 ${carName}<br>
-  <span class="remaining-text">残り<span class="count">${capacity}</span>席</span>
+  <span class="remaining-text">残<span class="count">${capacity}</span>席</span>
 </h2>
       <div class="dropzone"></div>
     `;
