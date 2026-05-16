@@ -703,7 +703,7 @@ function updateCounts() {
   });
 
 const totalChildren = document.querySelectorAll('.person').length;
-const needMore = Math.max(totalChildren - totalCapacity, 0);
+const needMore = totalChildren - totalCapacity;
 const summary = document.getElementById('seat-summary');
 
 if (summary) {
