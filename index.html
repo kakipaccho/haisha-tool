@@ -557,21 +557,23 @@ loadEvents();
   );
 
   drivers.forEach(item => {
+    if (item.familyName === '人') return;
     const car = document.createElement('div');
     car.className = 'car';
     car.dataset.capacity = item.capacity;
 
     car.innerHTML = `
-      <h2>
-  🚗 ${item.familyName}<br>
-  <span class="remaining-text">残<span class="count">${item.capacity}</span>席</span>
-</h2>
-      <div class="dropzone"></div>
-    `;
-    const zone = car.querySelector('.dropzone');
+  <h2>
+    🚗 ${item.familyName}<br>
+    <span class="remaining-text">残<span class="count">${item.capacity}</span>席</span>
+  </h2>
+  <div class="dropzone"></div>
+`;
+
+const zone = car.querySelector('.dropzone');
 setupDropzone(zone);
 
-    carsArea.appendChild(car);
+carsArea.appendChild(car);
   });
 }
 
