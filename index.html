@@ -552,7 +552,11 @@ loadEvents();
    
    function createCars(data, selectedEvent) {
   const carsArea = document.querySelector('.cars-area');
+  const peopleArea = document.getElementById('people-area');
 
+document.querySelectorAll('.car .person').forEach(person => {
+  peopleArea.appendChild(person);
+});
   carsArea.innerHTML = '';
 
   const drivers = data.filter(item =>
