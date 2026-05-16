@@ -643,43 +643,11 @@ function setupDropzone(zone) {
     e.preventDefault();
   });
 
-zone.addEventListener('drop', () => {
-  if (draggedItem) {
-    zone.appendChild(draggedItem);
-    draggedItem = null;
-    updateCounts();
-  }
-});
-  const cars = document.querySelectorAll('.car');
-
-  let totalCapacity = 0;
-  let totalUsed = 0;
-
-  cars.forEach(car => {
-    const capacity = Number(car.dataset.capacity);
-    const people = car.querySelectorAll('.person').length;
-    const remaining = capacity - people;
-    const count = car.querySelector('.count');
-
-    totalCapacity += capacity;
-    totalUsed += people;
-
-    count.textContent = remaining;
-
-    if (remaining <= 0) {
-      car.classList.add('full');
-    } else {
-      car.classList.remove('full');
-    }
-  });
-
-  const totalRemaining = totalCapacity - totalUsed;
-  const summary = document.getElementById('seat-summary');
-
-  if (summary) {
-    summary.textContent = `確保席：${totalCapacity}席 / 使用中：${totalUsed}席 / 残席：${totalRemaining}席`;
-  }
-}
+  zone.addEventListener('drop', () => {
+    if (draggedItem) {
+      zone.appendChild(draggedItem);
+      draggedItem = null;
+      updateCounts();
     }
   });
 
@@ -687,16 +655,13 @@ zone.addEventListener('drop', () => {
   zone.addEventListener('touchstart', moveSelectedPerson);
 
   function moveSelectedPerson(e) {
-    const parentCar = zone.closest('.car');
-
-   if (selectedPerson) {
+    if (selectedPerson) {
       e.preventDefault();
       e.stopPropagation();
 
       zone.appendChild(selectedPerson);
 
       selectedPerson.classList.remove('selected');
-
       selectedPerson = null;
 
       const selectedName = document.getElementById('selected-name');
@@ -708,8 +673,9 @@ zone.addEventListener('drop', () => {
     }
   }
 }
-  document.querySelectorAll('.person').forEach(setupPerson);
-  document.querySelectorAll('.dropzone').forEach(setupDropzone);
+
+document.querySelectorAll('.person').forEach(setupPerson);
+document.querySelectorAll('.dropzone').forEach(setupDropzone);
 
 function updateCounts() {
   const cars = document.querySelectorAll('.car');
@@ -741,7 +707,7 @@ function updateCounts() {
   if (summary) {
     summary.textContent = `確保席：${totalCapacity}席 / 使用中：${totalUsed}席 / 残席：${totalRemaining}席`;
   }
-}}
+}
 
   function addPerson() {
     const input = document.getElementById('nameInput');
