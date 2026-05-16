@@ -690,6 +690,14 @@ function setupCarToggle(car) {
 
     car.classList.toggle('disabled-car');
 
+    const carsArea = document.querySelector('.cars-area');
+
+    if (car.classList.contains('disabled-car')) {
+      carsArea.appendChild(car);
+    } else {
+      carsArea.prepend(car);
+    }
+
     updateCounts();
   });
 }
