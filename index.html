@@ -452,10 +452,6 @@ padding: 2px;
   <p id="selected-name">選択中：なし</p>
 
   <button onclick="saveToSheet()">💾 保存</button>
-  <button onclick="loadData()">📂 読み込み</button>
-<button onclick="downloadData()">📤 ファイル書き出し</button>
-<input type="file" id="importFile" accept=".json" onchange="uploadData(event)" style="display:none">
-<button onclick="document.getElementById('importFile').click()">📥 ファイル読込</button>
 </div>
 
   <div class="container">
@@ -566,7 +562,10 @@ loadEvents();
     car.dataset.capacity = item.capacity;
 
     car.innerHTML = `
-      <h2>🚗 ${item.familyName}号 残り<span class="count">${item.capacity}</span>席</h2>
+      <h2>
+  🚗 ${item.familyName}号<br>
+  <span class="remaining-text">残り<span class="count">${item.capacity}</span>席</span>
+</h2>
       <div class="dropzone"></div>
     `;
 
@@ -739,7 +738,10 @@ function setupDropzone(zone) {
     newCar.dataset.capacity = capacity;
 
     newCar.innerHTML = `
-      <h2>🚗 ${carName} 残り<span class="count">${capacity}</span>席</h2>
+      <h2>
+  🚗 ${carName}<br>
+  <span class="remaining-text">残り<span class="count">${capacity}</span>席</span>
+</h2>
       <div class="dropzone"></div>
     `;
 
@@ -779,65 +781,12 @@ function setupDropzone(zone) {
     updateCounts();
   }
 
-  function saveData() {
-  const data = document.querySelector('.container').innerHTML;
-
-  localStorage.setItem('haishaData', data);
-
-  alert('保存しました！');
-}
-
-function loadData() {
-  const savedData = localStorage.getItem('haishaData');
-
-  if (savedData) {
-    document.querySelector('.container').innerHTML = savedData;
-
-    reSetup();
-
-    updateCounts();
-
-    alert('読み込みました！');
-  }
-}
-
-function downloadData() {
-  const data = document.querySelector('.container').innerHTML;
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = '配車データ.json';
-  a.click();
-
-  URL.revokeObjectURL(url);
-}
-
-function uploadData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = function(e) {
-    document.querySelector('.container').innerHTML = e.target.result;
-
-    document.querySelectorAll('.person').forEach(setupPerson);
-    document.querySelectorAll('.dropzone').forEach(setupDropzone);
-    updateCounts();
-  };
-
-  reader.readAsText(file);
-}
-
-
-updateCounts();
-
 async function saveToSheet() {
+
   const cars = [];
 
   document.querySelectorAll('.car').forEach(car => {
+
     const name = car.querySelector('h2').textContent
       .split('残り')[0]
       .replace('🚗', '')
@@ -847,6 +796,7 @@ async function saveToSheet() {
     const remaining = car.querySelector('.count').textContent;
 
     const members = [];
+
     car.querySelectorAll('.person').forEach(person => {
       members.push(person.textContent.trim());
     });
@@ -857,9 +807,10 @@ async function saveToSheet() {
       remaining,
       members
     });
+
   });
 
-  await fetch('https://script.google.com/macros/s/AKfycbwiL44FlJHSHGdn9tboQEsfH8pt2fLA0X3GxhHZIXFkrh1TRfZ_OY0pUlWdESiSCatT/exec ', {
+  await fetch(GAS_URL, {
     method: 'POST',
     mode: 'no-cors',
     body: JSON.stringify({ cars })
