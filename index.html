@@ -564,10 +564,12 @@ loadEvents();
     car.innerHTML = `
       <h2>
   🚗 ${item.familyName}<br>
-  <span class="remaining-text">残り<span class="count">${item.capacity}</span>席</span>
+  <span class="remaining-text">残<span class="count">${item.capacity}</span>席</span>
 </h2>
       <div class="dropzone"></div>
     `;
+    const zone = car.querySelector('.dropzone');
+setupDropzone(zone);
 
     carsArea.appendChild(car);
   });
