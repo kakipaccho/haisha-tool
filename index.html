@@ -643,11 +643,13 @@ function setupDropzone(zone) {
     e.preventDefault();
   });
 
-  zone.addEventListener('drop', () => {
-    if (draggedItem) {
-      zone.appendChild(draggedItem);
-      draggedItem = null;
-      function updateCounts() {
+zone.addEventListener('drop', () => {
+  if (draggedItem) {
+    zone.appendChild(draggedItem);
+    draggedItem = null;
+    updateCounts();
+  }
+});
   const cars = document.querySelectorAll('.car');
 
   let totalCapacity = 0;
@@ -709,24 +711,37 @@ function setupDropzone(zone) {
   document.querySelectorAll('.person').forEach(setupPerson);
   document.querySelectorAll('.dropzone').forEach(setupDropzone);
 
-  function updateCounts() {
-    const cars = document.querySelectorAll('.car');
+function updateCounts() {
+  const cars = document.querySelectorAll('.car');
 
-    cars.forEach(car => {
-      const capacity = Number(car.dataset.capacity);
-      const people = car.querySelectorAll('.person').length;
-      const remaining = capacity - people;
-      const count = car.querySelector('.count');
+  let totalCapacity = 0;
+  let totalUsed = 0;
 
-      count.textContent = remaining;
+  cars.forEach(car => {
+    const capacity = Number(car.dataset.capacity);
+    const people = car.querySelectorAll('.person').length;
+    const remaining = capacity - people;
+    const count = car.querySelector('.count');
 
-        if (remaining <= 0) {
-  car.classList.add('full');
-} else {
-  car.classList.remove('full');
-}
-    });
+    totalCapacity += capacity;
+    totalUsed += people;
+
+    count.textContent = remaining;
+
+    if (remaining <= 0) {
+      car.classList.add('full');
+    } else {
+      car.classList.remove('full');
+    }
+  });
+
+  const totalRemaining = totalCapacity - totalUsed;
+  const summary = document.getElementById('seat-summary');
+
+  if (summary) {
+    summary.textContent = `確保席：${totalCapacity}席 / 使用中：${totalUsed}席 / 残席：${totalRemaining}席`;
   }
+}}
 
   function addPerson() {
     const input = document.getElementById('nameInput');
