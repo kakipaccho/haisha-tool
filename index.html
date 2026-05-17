@@ -565,7 +565,12 @@ document.querySelectorAll('.car .person').forEach(person => {
     item.availability.includes('可能')
   );
      
-　drivers.sort((a, b) => a.historyCount - b.historyCount);
+　drivers.sort((a, b) => {
+  const scoreA = Number(a.historyCount) + (a.recentUsed ? 100 : 0);
+  const scoreB = Number(b.historyCount) + (b.recentUsed ? 100 : 0);
+
+  return scoreA - scoreB;
+});
      
   drivers.forEach(item => {
   if (item.familyName === '人') return;
