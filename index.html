@@ -564,7 +564,9 @@ document.querySelectorAll('.car .person').forEach(person => {
     item.availability &&
     item.availability.includes('可能')
   );
-
+     
+　drivers.sort((a, b) => a.historyCount - b.historyCount);
+     
   drivers.forEach(item => {
   if (item.familyName === '人') return;
 
