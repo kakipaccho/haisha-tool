@@ -445,6 +445,14 @@ padding: 2px;
   }
 }
 
+.car.full .dropzone {
+  cursor: not-allowed;
+}
+
+.car.full .remaining-text {
+  font-weight: bold;
+}
+
   </style>
 </head>
 
@@ -657,18 +665,26 @@ createCars(data, select.value);
   person.addEventListener('touchstart', selectThisPerson);
 }
 
-function setupDropzone(zone) {
-  zone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-  });
+zone.addEventListener('drop', () => {
+  if (draggedItem) {
+    const car = zone.closest('.car');
 
-  zone.addEventListener('drop', () => {
-    if (draggedItem) {
-      zone.appendChild(draggedItem);
-      draggedItem = null;
-      updateCounts();
+    if (car && !car.classList.contains('disabled-car')) {
+      const capacity = Number(car.dataset.capacity);
+      const people = zone.querySelectorAll('.person').length;
+
+      if (people >= capacity) {
+        alert('この車は満席です！');
+        draggedItem = null;
+        return;
+      }
     }
-  });
+
+    zone.appendChild(draggedItem);
+    draggedItem = null;
+    updateCounts();
+  }
+});
 
   zone.addEventListener('click', moveSelectedPerson);
   zone.addEventListener('touchstart', moveSelectedPerson);
@@ -677,6 +693,18 @@ function setupDropzone(zone) {
     if (selectedPerson) {
       e.preventDefault();
       e.stopPropagation();
+
+            const car = zone.closest('.car');
+
+      if (car && !car.classList.contains('disabled-car')) {
+        const capacity = Number(car.dataset.capacity);
+        const people = zone.querySelectorAll('.person').length;
+
+        if (people >= capacity) {
+          alert('この車は満席です！');
+          return;
+        }
+      }
 
       zone.appendChild(selectedPerson);
 
