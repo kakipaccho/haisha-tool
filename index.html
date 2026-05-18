@@ -592,7 +592,9 @@ document.querySelectorAll('.car .person').forEach(person => {
   car.innerHTML = `
     <h2>
       🚗 ${item.familyName}<br>
-      <span class="remaining-text">残<span class="count">${capacity}</span>席</span>
+      <span class="remaining-text">
+  <span class="label">残</span><span class="count">${capacity}</span><span class="unit">席</span>
+</span>
     </h2>
     <div class="dropzone"></div>
   `;
@@ -763,11 +765,20 @@ function updateCounts() {
     totalCapacity += capacity;
     totalUsed += people;
 
-  if (remaining <= 0) {
-  count.textContent = '満';
+if (remaining <= 0) {
+  count.textContent = '満席';
+
+  car.querySelector('.label').style.display = 'none';
+  car.querySelector('.unit').style.display = 'none';
+
   car.classList.add('full');
+
 } else {
   count.textContent = remaining;
+
+  car.querySelector('.label').style.display = 'inline';
+  car.querySelector('.unit').style.display = 'inline';
+
   car.classList.remove('full');
 }
 
@@ -831,7 +842,9 @@ if (summary) {
     newCar.innerHTML = `
       <h2>
   🚗 ${carName}<br>
-  <span class="remaining-text">残<span class="count">${capacity}</span>席</span>
+  <span class="remaining-text">
+  <span class="label">残</span><span class="count">${capacity}</span><span class="unit">席</span>
+</span>
 </h2>
       <div class="dropzone"></div>
     `;
