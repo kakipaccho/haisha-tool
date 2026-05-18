@@ -763,14 +763,13 @@ function updateCounts() {
     totalCapacity += capacity;
     totalUsed += people;
 
-    count.textContent = remaining;
-
-    if (remaining <= 0) {
-      car.classList.add('full');
-    } else {
-      car.classList.remove('full');
-    }
-  });
+  if (remaining <= 0) {
+  count.textContent = '満';
+  car.classList.add('full');
+} else {
+  count.textContent = remaining;
+  car.classList.remove('full');
+}
 
 const totalChildren = document.querySelectorAll('.person').length;
 const needMore = totalChildren - totalCapacity;
