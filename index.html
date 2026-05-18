@@ -665,26 +665,31 @@ createCars(data, select.value);
   person.addEventListener('touchstart', selectThisPerson);
 }
 
-zone.addEventListener('drop', () => {
-  if (draggedItem) {
-    const car = zone.closest('.car');
+function setupDropzone(zone) {
+  zone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+  });
 
-    if (car && !car.classList.contains('disabled-car')) {
-      const capacity = Number(car.dataset.capacity);
-      const people = zone.querySelectorAll('.person').length;
+  zone.addEventListener('drop', () => {
+    if (draggedItem) {
+      const car = zone.closest('.car');
 
-      if (people >= capacity) {
-        alert('この車は満席です！');
-        draggedItem = null;
-        return;
+      if (car && !car.classList.contains('disabled-car')) {
+        const capacity = Number(car.dataset.capacity);
+        const people = zone.querySelectorAll('.person').length;
+
+        if (people >= capacity) {
+          alert('この車は満席です！');
+          draggedItem = null;
+          return;
+        }
       }
-    }
 
-    zone.appendChild(draggedItem);
-    draggedItem = null;
-    updateCounts();
-  }
-});
+      zone.appendChild(draggedItem);
+      draggedItem = null;
+      updateCounts();
+    }
+  });
 
   zone.addEventListener('click', moveSelectedPerson);
   zone.addEventListener('touchstart', moveSelectedPerson);
@@ -694,7 +699,7 @@ zone.addEventListener('drop', () => {
       e.preventDefault();
       e.stopPropagation();
 
-            const car = zone.closest('.car');
+      const car = zone.closest('.car');
 
       if (car && !car.classList.contains('disabled-car')) {
         const capacity = Number(car.dataset.capacity);
@@ -704,6 +709,7 @@ zone.addEventListener('drop', () => {
           alert('この車は満席です！');
           return;
         }
+      }
 
       zone.appendChild(selectedPerson);
 
@@ -719,6 +725,7 @@ zone.addEventListener('drop', () => {
     }
   }
 }
+
 
 document.querySelectorAll('.person').forEach(setupPerson);
 document.querySelectorAll('.dropzone').forEach(setupDropzone);
