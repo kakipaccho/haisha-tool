@@ -903,6 +903,7 @@ document.querySelector('.cars-area').appendChild(newCar);
     if (carName === '') return;
 
     document.querySelectorAll('.car').forEach(car => {
+      if (car.classList.contains('disabled-car')) return;
       const title = car.querySelector('h2').textContent;
 
       if (title.includes(carName)) {
