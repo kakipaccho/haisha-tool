@@ -783,13 +783,18 @@ if (remaining <= 0) {
 }
 
 const totalChildren = document.querySelectorAll('.person').length;
-const needMore = totalChildren - totalCapacity;
+const seatDiff = totalCapacity - totalChildren;
 const summary = document.getElementById('seat-summary');
 
 if (summary) {
-  summary.textContent = `必要あと：${needMore}席`;
+  if (seatDiff > 0) {
+    summary.textContent = `余裕：${seatDiff}席`;
+  } else if (seatDiff === 0) {
+    summary.textContent = '席数ぴったり！';
+  } else {
+    summary.textContent = `必要あと：${Math.abs(seatDiff)}席`;
+  }
 }
-
   });
 }
 
