@@ -453,6 +453,24 @@ padding: 2px;
   font-weight: bold;
 }
 
+  .seat-danger {
+  color: #dc2626;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.seat-ok {
+  color: #16a34a;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.seat-perfect {
+  color: #2563eb;
+  font-weight: bold;
+  font-size: 20px;
+}
+  
   </style>
 </head>
 
@@ -787,12 +805,24 @@ const seatDiff = totalCapacity - totalChildren;
 const summary = document.getElementById('seat-summary');
 
 if (summary) {
+
+  summary.classList.remove(
+    'seat-danger',
+    'seat-ok',
+    'seat-perfect'
+  );
+
   if (seatDiff > 0) {
     summary.textContent = `余裕：${seatDiff}席`;
+    summary.classList.add('seat-ok');
+
   } else if (seatDiff === 0) {
     summary.textContent = '席数ぴったり！';
+    summary.classList.add('seat-perfect');
+
   } else {
     summary.textContent = `必要あと：${Math.abs(seatDiff)}席`;
+    summary.classList.add('seat-danger');
   }
 }
   });
