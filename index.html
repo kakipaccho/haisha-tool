@@ -577,6 +577,9 @@ uniqueChildren.forEach(name => {
   const person = document.createElement('div');
 
   person.className = 'person';
+
+const partClass = getPartClass(item.part);
+person.classList.add(partClass);
   person.draggable = true;
   person.textContent = name;
 
