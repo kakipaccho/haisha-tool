@@ -533,27 +533,6 @@ padding: 2px;
 
        <div class="dropzone" id="people-area">
 
-    <div class="person brass" draggable="true">ゆい</div>
-    <div class="person brass" draggable="true">ゆい</div>
-    <div class="person woodwind" draggable="true">ゆな</div>
-    <div class="person other" draggable="true">あおい</div>
-    <div class="person brass" draggable="true">ゆい</div>
-    <div class="person brass" draggable="true">ゆい</div>
-    <div class="person woodwind" draggable="true">ゆな</div>
-    <div class="person other" draggable="true">あおい</div>
-    <div class="person brass" draggable="true">ゆい</div>
-    <div class="person brass" draggable="true">ゆい</div>
-    <div class="person woodwind" draggable="true">ゆな</div>
-    <div class="person other" draggable="true">あおい</div> 
-    <div class="person other" draggable="true">あおい</div>
-    <div class="person brass" draggable="true">ゆい</div>
-    <div class="person brass" draggable="true">ゆい</div>
-    <div class="person woodwind" draggable="true">ゆな</div>
-    <div class="person other" draggable="true">あおい</div> 
-    <div class="person brass" draggable="true">ゆい</div>
-    <div class="person woodwind" draggable="true">ゆな</div>
-    <div class="person other" draggable="true">あおい</div> 
-
         </div>
 
 <div class="control-area">
@@ -586,6 +565,25 @@ loadEvents();
    function createCars(data, selectedEvent) {
   const carsArea = document.querySelector('.cars-area');
   const peopleArea = document.getElementById('people-area');
+     peopleArea.innerHTML = '';
+
+const uniqueChildren = [...new Set(
+  data
+    .filter(item => item.event === selectedEvent)
+    .map(item => item.familyName)
+)];
+
+uniqueChildren.forEach(name => {
+  const person = document.createElement('div');
+
+  person.className = 'person';
+  person.draggable = true;
+  person.textContent = name;
+
+  setupPerson(person);
+
+  peopleArea.appendChild(person);
+});
 
 document.querySelectorAll('.car .person').forEach(person => {
   peopleArea.appendChild(person);
