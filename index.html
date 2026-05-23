@@ -560,28 +560,48 @@ padding: 2px;
  <script>
    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwiL44FlJHSHGdn9tboQEsfH8pt2fLA0X3GxhHZIXFkrh1TRfZ_OY0pUlWdESiSCatT/exec';
 
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwiL44FlJHSHGdn9tboQEsfH8pt2fLA0X3GxhHZIXFkrh1TRfZ_OY0pUlWdESiSCatT/exec';
+
 loadEvents();
-   
-   function createCars(data, selectedEvent) {
+
+function getPartClass(part) {
+  if (['トランペット', 'トロンボーン', 'ホルン', 'チューバ', 'ユーフォニアム'].includes(part)) {
+    return 'brass';
+  }
+
+  if (['クラリネット', 'サックス', 'フルート'].includes(part)) {
+    return 'woodwind';
+  }
+
+  return 'other';
+}
+
+function createCars(data, selectedEvent) {
   const carsArea = document.querySelector('.cars-area');
   const peopleArea = document.getElementById('people-area');
-     peopleArea.innerHTML = '';
+peopleArea.innerHTML = '';
 
-const uniqueChildren = [...new Set(
-  data
-    .filter(item => item.event === selectedEvent)
-    .map(item => item.familyName)
-)];
+const uniqueMembers = [];
 
-uniqueChildren.forEach(name => {
+data
+  .filter(item => item.event === selectedEvent)
+  .forEach(item => {
+    if (!uniqueMembers.some(member => member.familyName === item.familyName)) {
+      uniqueMembers.push({
+        familyName: item.familyName,
+        part: item.part
+      });
+    }
+  });
+
+uniqueMembers.forEach(item => {
   const person = document.createElement('div');
 
   person.className = 'person';
+  person.classList.add(getPartClass(item.part));
 
-const partClass = getPartClass(item.part);
-person.classList.add(partClass);
   person.draggable = true;
-  person.textContent = name;
+  person.textContent = item.familyName;
 
   setupPerson(person);
 
