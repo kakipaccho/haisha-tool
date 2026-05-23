@@ -933,7 +933,7 @@ async function saveToSheet() {
 
   const cars = [];
 
-  document.querySelectorAll('.car').forEach(car => {
+  document.querySelectorAll('.car:not(.disabled-car)').forEach(car => {
 
     const name = car.querySelector('h2').textContent
       .split('残り')[0]
