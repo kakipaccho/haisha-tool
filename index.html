@@ -634,6 +634,39 @@ carsArea.appendChild(car);
      updateCounts();
 }
 
+function restoreSavedData(savedData, selectedEvent, selectedRoute) {
+  const targetSaved = savedData.filter(item =>
+    item.event === selectedEvent &&
+    item.route === selectedRoute
+  );
+
+  targetSaved.forEach(savedCar => {
+    const cars = document.querySelectorAll('.car');
+
+    cars.forEach(car => {
+      const carName = car.querySelector('h2').childNodes[0].textContent
+        .replace('🚗', '')
+        .trim();
+
+      if (carName === savedCar.carName) {
+        const zone = car.querySelector('.dropzone');
+
+        savedCar.members.forEach(memberName => {
+          const people = document.querySelectorAll('#people-area .person');
+
+          people.forEach(person => {
+            if (person.textContent.trim() === memberName) {
+              zone.appendChild(person);
+            }
+          });
+        });
+      }
+    });
+  });
+
+  updateCounts();
+}
+   
 async function loadEvents() {
 
   const response = await fetch(GAS_URL);
@@ -658,11 +691,18 @@ const savedData = responseData.saved;
     
   });
 
-  select.addEventListener('change', () => {
+select.addEventListener('change', () => {
   createCars(data, select.value);
+  restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
+});
+
+document.getElementById('route-select').addEventListener('change', () => {
+  createCars(data, select.value);
+  restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
 });
 
 createCars(data, select.value);
+restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
 
 }
   let draggedItem = null;
