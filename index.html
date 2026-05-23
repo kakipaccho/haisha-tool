@@ -637,7 +637,9 @@ carsArea.appendChild(car);
 async function loadEvents() {
 
   const response = await fetch(GAS_URL);
-  const data = await response.json();
+ const responseData = await response.json();
+const data = responseData.candidates;
+const savedData = responseData.saved;
 
   const select = document.getElementById('event-select');
 
@@ -935,10 +937,9 @@ async function saveToSheet() {
 
   document.querySelectorAll('.car:not(.disabled-car)').forEach(car => {
 
-    const name = car.querySelector('h2').textContent
-      .split('残り')[0]
-      .replace('🚗', '')
-      .trim();
+const name = car.querySelector('h2').childNodes[0].textContent
+  .replace('🚗', '')
+  .trim();
 
     const capacity = car.dataset.capacity;
     const remaining = car.querySelector('.count').textContent;
