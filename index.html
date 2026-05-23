@@ -561,6 +561,7 @@ padding: 2px;
   <select id="event-select">
     <option value="">読み込み中...</option>
   </select>
+  
 </div>
 
     </div>
@@ -633,6 +634,12 @@ async function loadEvents() {
   const data = await response.json();
 
   const select = document.getElementById('event-select');
+
+  <label>区分：</label>
+<select id="route-select">
+  <option value="行き">行き</option>
+  <option value="帰り">帰り</option>
+</select>
 
   const events = [...new Set(data.map(item => item.event))];
 
@@ -951,11 +958,18 @@ async function saveToSheet() {
 
   });
 
-  await fetch(GAS_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    body: JSON.stringify({ cars })
-  });
+const selectedEvent = document.getElementById('event-select').value;
+const selectedRoute = document.getElementById('route-select').value;
+
+await fetch(GAS_URL, {
+  method: 'POST',
+  mode: 'no-cors',
+  body: JSON.stringify({
+    event: selectedEvent,
+    route: selectedRoute,
+    cars: cars
+  })
+});
 
   alert('スプレッドシートに保存しました！');
 }
