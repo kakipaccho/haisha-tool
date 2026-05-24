@@ -701,7 +701,13 @@ const savedData = responseData.saved;
 
   const select = document.getElementById('event-select');
 
-  const events = [...new Set(data.map(item => item.event))];
+  const events = [...new Set(data.map(item => item.event))]
+  .sort((a, b) => {
+    const dateA = a.match(/\d+\/\d+/)?.[0];
+    const dateB = b.match(/\d+\/\d+/)?.[0];
+
+    return new Date(`2026/${dateA}`) - new Date(`2026/${dateB}`);
+  });
 
   select.innerHTML = '';
 
