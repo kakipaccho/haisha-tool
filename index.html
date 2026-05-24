@@ -701,6 +701,7 @@ async function loadEvents() {
   const response = await fetch(GAS_URL);
  const responseData = await response.json();
 const data = responseData.candidates;
+const children = responseData.children;
 const savedData = responseData.saved;
 
   const select = document.getElementById('event-select');
@@ -721,16 +722,16 @@ const savedData = responseData.saved;
   });
 
 select.addEventListener('change', () => {
-  createCars(data, select.value);
+ createCars(data, children, select.value);
   restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
 });
 
 document.getElementById('route-select').addEventListener('change', () => {
-  createCars(data, select.value);
+ createCars(data, children, select.value);
   restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
 });
 
-createCars(data, select.value);
+createCars(data, children, select.value);
 restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
 
 }
