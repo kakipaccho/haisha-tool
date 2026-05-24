@@ -574,7 +574,7 @@ function getPartClass(part) {
   return 'other';
 }
 
-function createCars(data, selectedEvent) {
+function createCars(data, children, selectedEvent) {
   const carsArea = document.querySelector('.cars-area');
   const peopleArea = document.getElementById('people-area');
 
@@ -583,14 +583,9 @@ function createCars(data, selectedEvent) {
 
   peopleArea.innerHTML = '';
 
-  const uniqueMembers = [];
+  const uniqueMembers = children || [];
 
-  data
-    .filter(item =>
-      item.event === selectedEvent &&
-      item.route === selectedRoute
-    )
-    .forEach(item => {
+  uniqueMembers.forEach(item => {
       if (!uniqueMembers.some(member =>
         member.familyName === item.familyName
       )) {
