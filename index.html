@@ -577,20 +577,29 @@ function getPartClass(part) {
 function createCars(data, selectedEvent) {
   const carsArea = document.querySelector('.cars-area');
   const peopleArea = document.getElementById('people-area');
-peopleArea.innerHTML = '';
 
-const uniqueMembers = [];
+  const selectedRoute =
+    document.getElementById('route-select').value;
 
-data
-  .filter(item => item.event === selectedEvent)
-  .forEach(item => {
-    if (!uniqueMembers.some(member => member.familyName === item.familyName)) {
-      uniqueMembers.push({
-        familyName: item.familyName,
-        part: item.part
-      });
-    }
-  });
+  peopleArea.innerHTML = '';
+
+  const uniqueMembers = [];
+
+  data
+    .filter(item =>
+      item.event === selectedEvent &&
+      item.route === selectedRoute
+    )
+    .forEach(item => {
+      if (!uniqueMembers.some(member =>
+        member.familyName === item.familyName
+      )) {
+        uniqueMembers.push({
+          familyName: item.familyName,
+          part: item.part
+        });
+      }
+    });
 
 uniqueMembers.forEach(item => {
   const person = document.createElement('div');
@@ -611,11 +620,12 @@ document.querySelectorAll('.car .person').forEach(person => {
 });
   carsArea.innerHTML = '';
 
-  const drivers = data.filter(item =>
-    item.event === selectedEvent &&
-    item.availability &&
-    item.availability.includes('可能')
-  );
+const drivers = data.filter(item =>
+  item.event === selectedEvent &&
+  item.route === selectedRoute &&
+  item.availability &&
+  item.availability.includes('可能')
+);
      
 　drivers.sort((a, b) => {
   const scoreA = Number(a.historyCount) + (a.recentUsed ? 100 : 0);
