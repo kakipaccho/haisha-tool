@@ -1075,12 +1075,15 @@ async function confirmDispatch() {
 
   const selectedEvent = document.getElementById('event-select').value;
   const selectedRoute = document.getElementById('route-select').value;
-
+const selectedDate =
+  document.getElementById('event-select').selectedOptions[0].dataset.date;
+  
   await fetch(GAS_URL, {
     method: 'POST',
     mode: 'no-cors',
     body: JSON.stringify({
       action: 'confirmDispatch',
+      date: selectedDate,
       event: selectedEvent,
       route: selectedRoute,
       cars: cars
