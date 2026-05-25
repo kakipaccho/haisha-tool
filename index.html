@@ -1047,8 +1047,47 @@ await fetch(GAS_URL, {
   alert('スプレッドシートに保存しました！');
 }
    
-function confirmDispatch() {
-  alert('配車確定の処理をこれから追加します！');
+async function confirmDispatch() {
+
+  const cars = [];
+
+  document.querySelectorAll('.car:not(.disabled-car)').forEach(car => {
+
+    const name = car.querySelector('h2').childNodes[0].textContent
+      .replace('🚗', '')
+      .trim();
+
+    const members = [];
+
+    car.querySelectorAll('.person').forEach(person => {
+      members.push(person.textContent.trim());
+    });
+
+    if (members.length === 0) return;
+
+    cars.push({
+      name,
+      count: members.length,
+      members
+    });
+
+  });
+
+  const selectedEvent = document.getElementById('event-select').value;
+  const selectedRoute = document.getElementById('route-select').value;
+
+  await fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify({
+      action: 'confirmDispatch',
+      event: selectedEvent,
+      route: selectedRoute,
+      cars: cars
+    })
+  });
+
+  alert('配車を確定して、車出し履歴に保存しました！');
 }
 </script>
 
