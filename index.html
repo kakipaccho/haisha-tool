@@ -1080,7 +1080,14 @@ async function confirmDispatch() {
   const selectedRoute = document.getElementById('route-select').value;
 const selectedDate =
   document.getElementById('event-select').selectedOptions[0].dataset.date;
-  const formattedDate = selectedDate.slice(0, 10);
+  const dateObj = new Date(selectedDate);
+
+  dateObj.setHours(dateObj.getHours() + 9);
+
+const formattedDate =
+  dateObj.getFullYear() + '/' +
+  String(dateObj.getMonth() + 1).padStart(2, '0') + '/' +
+  String(dateObj.getDate()).padStart(2, '0');
   
   await fetch(GAS_URL, {
     method: 'POST',
