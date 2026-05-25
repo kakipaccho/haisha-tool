@@ -718,7 +718,7 @@ const savedData = responseData.saved;
 
     option.value = eventName;
     option.textContent = eventName;
-
+    option.dataset.date = item.date;
     select.appendChild(option);
     
   });
