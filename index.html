@@ -712,16 +712,19 @@ const savedData = responseData.saved;
 
   select.innerHTML = '';
 
-  events.forEach(eventName => {
+events.forEach(eventName => {
 
-    const option = document.createElement('option');
+  const option = document.createElement('option');
 
-    option.value = eventName;
-    option.textContent = eventName;
-    option.dataset.date = item.date;
-    select.appendChild(option);
-    
-  });
+  option.value = eventName;
+  option.textContent = eventName;
+
+  const matchedItem = data.find(item => item.event === eventName);
+  option.dataset.date = matchedItem?.date || '';
+
+  select.appendChild(option);
+
+});
 
 select.addEventListener('change', () => {
  createCars(data, children, select.value);
