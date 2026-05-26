@@ -651,11 +651,11 @@ const drivers = data.filter(item =>
   car.className = 'car';
   car.dataset.capacity = capacity;
 
-    if (carData.routeType === '往復可能') {
+if (item.availability === '往復可能') {
   car.classList.add('round-trip');
-} else if (carData.routeType === '行きのみ可能') {
+} else if (item.availability === '行きのみ可能') {
   car.classList.add('go-only');
-} else if (carData.routeType === '帰りのみ可能') {
+} else if (item.availability === '帰りのみ可能') {
   car.classList.add('back-only');
 }
 
