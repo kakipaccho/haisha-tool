@@ -610,7 +610,18 @@ function createCars(data, children, selectedEvent, savedData = []) {
 
   peopleArea.innerHTML = '';
 
-  const uniqueMembers = children || [];
+  const oppositeRoute = selectedRoute === '行き' ? '帰り' : '行き';
+
+const oppositeSavedMemberNames = savedData
+  .filter(item =>
+    item.event === selectedEvent &&
+    item.route === oppositeRoute
+  )
+  .flatMap(item => item.members || []);
+
+const uniqueMembers = (children || []).filter(child =>
+  !oppositeSavedMemberNames.includes(child.familyName)
+);
 
   uniqueMembers.forEach(item => {
       if (!uniqueMembers.some(member =>
@@ -790,12 +801,12 @@ select.addEventListener('change', () => {
 });
 
 document.getElementById('route-select').addEventListener('change', () => {
- createCars(data, children, select.value);
+ createCars(data, children, select.value, savedData);
   restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
   markPairedRouteCars(savedData, select.value, document.getElementById('route-select').value);
 });
 
-createCars(data, children, select.value);
+createCars(data, children, select.value, savedData);
 restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
  markPairedRouteCars(savedData, select.value, document.getElementById('route-select').value);
 
