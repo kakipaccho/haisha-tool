@@ -601,7 +601,7 @@ function getPartClass(part) {
   return 'other';
 }
 
-function createCars(data, children, selectedEvent) {
+function createCars(data, children, selectedEvent, savedData = []) {
   const carsArea = document.querySelector('.cars-area');
   const peopleArea = document.getElementById('people-area');
 
@@ -784,7 +784,7 @@ events.forEach(eventName => {
 });
 
 select.addEventListener('change', () => {
- createCars(data, children, select.value);
+ createCars(data, children, select.value, savedData);
   restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
   markPairedRouteCars(savedData, select.value, document.getElementById('route-select').value);
 });
