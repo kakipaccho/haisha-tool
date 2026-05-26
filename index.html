@@ -482,6 +482,20 @@ padding: 2px;
   font-weight: bold;
   font-size: 20px;
 }
+
+.car.paired-route {
+  border: 4px solid #f59e0b;
+  position: relative;
+}
+
+.car.paired-route::after {
+  content: "↔ 反対便あり";
+  display: block;
+  font-size: 11px;
+  font-weight: bold;
+  color: #92400e;
+  margin-top: 4px;
+}
   
   </style>
 </head>
@@ -685,6 +699,29 @@ function restoreSavedData(savedData, selectedEvent, selectedRoute) {
     item.route === selectedRoute
   );
 
+  function markPairedRouteCars(savedData, selectedEvent, selectedRoute) {
+  const oppositeRoute = selectedRoute === '行き' ? '帰り' : '行き';
+
+  const oppositeSaved = savedData.filter(item =>
+    item.event === selectedEvent &&
+    item.route === oppositeRoute
+  );
+
+  document.querySelectorAll('.car').forEach(car => {
+    const carName = car.querySelector('h2').childNodes[0].textContent
+      .replace('🚗', '')
+      .trim();
+
+    const isPaired = oppositeSaved.some(savedCar =>
+      savedCar.carName === carName
+    );
+
+    if (isPaired) {
+      car.classList.add('paired-route');
+    }
+  });
+}
+
   targetSaved.forEach(savedCar => {
     const cars = document.querySelectorAll('.car');
 
@@ -749,15 +786,18 @@ events.forEach(eventName => {
 select.addEventListener('change', () => {
  createCars(data, children, select.value);
   restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
+  markPairedRouteCars(savedData, select.value, document.getElementById('route-select').value);
 });
 
 document.getElementById('route-select').addEventListener('change', () => {
  createCars(data, children, select.value);
   restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
+  markPairedRouteCars(savedData, select.value, document.getElementById('route-select').value);
 });
 
 createCars(data, children, select.value);
 restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
+ markPairedRouteCars(savedData, select.value, document.getElementById('route-select').value);
 
 }
   let draggedItem = null;
