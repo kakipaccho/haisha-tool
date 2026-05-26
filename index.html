@@ -113,6 +113,18 @@ details {
   min-height: 180px;
 }
 
+.car.round-trip {
+  background-color: #eef7ff;
+}
+
+.car.go-only {
+  background-color: #fff6bf;
+}
+
+.car.back-only {
+  background-color: #ffe3ef;
+}
+      
   .car h2, .people h2, .car-form h2 {
     font-size: 17px;
     margin: 6px 0;
@@ -638,6 +650,14 @@ const drivers = data.filter(item =>
   const car = document.createElement('div');
   car.className = 'car';
   car.dataset.capacity = capacity;
+
+    if (carData.routeType === '往復可能') {
+  car.classList.add('round-trip');
+} else if (carData.routeType === '行きのみ可能') {
+  car.classList.add('go-only');
+} else if (carData.routeType === '帰りのみ可能') {
+  car.classList.add('back-only');
+}
 
   car.innerHTML = `
     <h2>
