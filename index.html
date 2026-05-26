@@ -610,7 +610,14 @@ function createCars(data, children, selectedEvent, savedData = []) {
 
   peopleArea.innerHTML = '';
 
-  const oppositeRoute = selectedRoute === '行き' ? '帰り' : '行き';
+ const oppositeRoute = selectedRoute === '行き' ? '帰り' : '行き';
+
+const currentSavedMemberNames = savedData
+  .filter(item =>
+    item.event === selectedEvent &&
+    item.route === selectedRoute
+  )
+  .flatMap(item => item.members || []);
 
 const oppositeSavedMemberNames = savedData
   .filter(item =>
@@ -619,9 +626,17 @@ const oppositeSavedMemberNames = savedData
   )
   .flatMap(item => item.members || []);
 
-const uniqueMembers = (children || []).filter(child =>
-  !oppositeSavedMemberNames.includes(child.familyName)
-);
+const uniqueMembers = (children || []).filter(child => {
+  const name = child.familyName;
+
+  // 今見ているルートに保存済みなら、復元用に必ず出す
+  if (currentSavedMemberNames.includes(name)) return true;
+
+  // 反対ルートだけにいる子は未配置に出さない
+  if (oppositeSavedMemberNames.includes(name)) return false;
+
+  return true;
+});
 
   uniqueMembers.forEach(item => {
       if (!uniqueMembers.some(member =>
