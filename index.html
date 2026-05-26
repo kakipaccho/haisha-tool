@@ -699,28 +699,6 @@ function restoreSavedData(savedData, selectedEvent, selectedRoute) {
     item.route === selectedRoute
   );
 
-  function markPairedRouteCars(savedData, selectedEvent, selectedRoute) {
-  const oppositeRoute = selectedRoute === '行き' ? '帰り' : '行き';
-
-  const oppositeSaved = savedData.filter(item =>
-    item.event === selectedEvent &&
-    item.route === oppositeRoute
-  );
-
-  document.querySelectorAll('.car').forEach(car => {
-    const carName = car.querySelector('h2').childNodes[0].textContent
-      .replace('🚗', '')
-      .trim();
-
-    const isPaired = oppositeSaved.some(savedCar =>
-      savedCar.carName === carName
-    );
-
-    if (isPaired) {
-      car.classList.add('paired-route');
-    }
-  });
-}
 
   targetSaved.forEach(savedCar => {
     const cars = document.querySelectorAll('.car');
@@ -747,6 +725,28 @@ function restoreSavedData(savedData, selectedEvent, selectedRoute) {
   });
 
   updateCounts();
+}
+    function markPairedRouteCars(savedData, selectedEvent, selectedRoute) {
+  const oppositeRoute = selectedRoute === '行き' ? '帰り' : '行き';
+
+  const oppositeSaved = savedData.filter(item =>
+    item.event === selectedEvent &&
+    item.route === oppositeRoute
+  );
+
+  document.querySelectorAll('.car').forEach(car => {
+    const carName = car.querySelector('h2').childNodes[0].textContent
+      .replace('🚗', '')
+      .trim();
+
+    const isPaired = oppositeSaved.some(savedCar =>
+      savedCar.carName === carName
+    );
+
+    if (isPaired) {
+      car.classList.add('paired-route');
+    }
+  });
 }
    
 async function loadEvents() {
