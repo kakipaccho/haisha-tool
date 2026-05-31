@@ -1167,10 +1167,11 @@ const formattedDate =
   });
 
   alert('配車を確定して、車出し履歴に保存しました！');
+
+  setTimeout(() => {
+    loadEvents();
+  }, 500);
 }
- //   setTimeout(() => {
-//   loadEvents();
-// }, 500);
    
 </script>
 
