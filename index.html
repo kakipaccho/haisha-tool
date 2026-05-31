@@ -1153,7 +1153,8 @@ const formattedDate =
   dateObj.getFullYear() + '/' +
   String(dateObj.getMonth() + 1).padStart(2, '0') + '/' +
   String(dateObj.getDate()).padStart(2, '0');
-  
+
+  console.log('confirm cars', cars);
   await fetch(GAS_URL, {
     method: 'POST',
     mode: 'no-cors',
