@@ -724,35 +724,12 @@ function restoreSavedData(savedData, selectedEvent, selectedRoute) {
       }
     });
   });
-}
-
-
-  targetSaved.forEach(savedCar => {
-    const cars = document.querySelectorAll('.car');
-
-    cars.forEach(car => {
-      const carName = car.querySelector('h2').childNodes[0].textContent
-        .replace('🚗', '')
-        .trim();
-
-      if (carName === savedCar.carName) {
-        const zone = car.querySelector('.dropzone');
-
-        savedCar.members.forEach(memberName => {
-          const people = document.querySelectorAll('#people-area .person');
-
-          people.forEach(person => {
-            if (person.textContent.trim() === memberName) {
-              zone.appendChild(person);
-            }
-          });
-        });
-      }
-    });
-  });
 
   updateCounts();
 }
+
+
+
     function markPairedRouteCars(savedData, selectedEvent, selectedRoute) {
   const oppositeRoute = selectedRoute === '行き' ? '帰り' : '行き';
 
