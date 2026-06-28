@@ -1089,17 +1089,24 @@ const name = car.querySelector('h2').childNodes[0].textContent
       members.push(person.textContent.trim());
     });
 
-    cars.push({
-      name,
-      capacity,
-      remaining,
-      members
-    });
+    if (members.length === 0) return;
+
+cars.push({
+  name,
+  capacity,
+  remaining,
+  members
+});
 
   });
 
 const selectedEvent = document.getElementById('event-select').value;
 const selectedRoute = document.getElementById('route-select').value;
+
+  if (cars.length === 0) {
+  alert('配置された子どもがいないため、保存しませんでした');
+  return;
+}
 
 console.log("保存データ", cars);
 console.log("予定", selectedEvent);
