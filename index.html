@@ -696,10 +696,41 @@ carsArea.appendChild(car);
 }
 
 function restoreSavedData(savedData, selectedEvent, selectedRoute) {
+  console.log('selectedEvent:', selectedEvent);
+  console.log('selectedRoute:', selectedRoute);
+  console.log('savedData:', savedData);
+
   const targetSaved = savedData.filter(item =>
-    item.event === selectedEvent &&
-    item.route === selectedRoute
+    String(item.event).trim() === String(selectedEvent).trim() &&
+    String(item.route).trim() === String(selectedRoute).trim()
   );
+
+  console.log('復元対象:', targetSaved);
+
+  targetSaved.forEach(savedCar => {
+    const cars = document.querySelectorAll('.car');
+
+    cars.forEach(car => {
+      const carName = car.querySelector('h2').childNodes[0].textContent
+        .replace('🚗', '')
+        .trim();
+
+      if (carName === savedCar.carName) {
+        const zone = car.querySelector('.dropzone');
+
+        savedCar.members.forEach(memberName => {
+          const people = document.querySelectorAll('#people-area .person');
+
+          people.forEach(person => {
+            if (person.textContent.trim() === String(memberName).trim()) {
+              zone.appendChild(person);
+            }
+          });
+        });
+      }
+    });
+  });
+}
 
 
   targetSaved.forEach(savedCar => {
