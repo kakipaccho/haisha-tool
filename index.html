@@ -1101,6 +1101,9 @@ const name = car.querySelector('h2').childNodes[0].textContent
 const selectedEvent = document.getElementById('event-select').value;
 const selectedRoute = document.getElementById('route-select').value;
 
+console.log("保存データ", cars);
+console.log("予定", selectedEvent);
+console.log("区分", selectedRoute);
 await fetch(GAS_URL, {
   method: 'POST',
   mode: 'no-cors',
