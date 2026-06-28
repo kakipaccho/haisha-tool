@@ -696,16 +696,10 @@ carsArea.appendChild(car);
 }
 
 function restoreSavedData(savedData, selectedEvent, selectedRoute) {
-  console.log('selectedEvent:', selectedEvent);
-  console.log('selectedRoute:', selectedRoute);
-  console.log('savedData:', savedData);
-
   const targetSaved = savedData.filter(item =>
-    String(item.event).trim() === String(selectedEvent).trim() &&
-    String(item.route).trim() === String(selectedRoute).trim()
+    item.event === selectedEvent &&
+    item.route === selectedRoute
   );
-
-  console.log('復元対象:', targetSaved);
 
   targetSaved.forEach(savedCar => {
     const cars = document.querySelectorAll('.car');
@@ -722,7 +716,7 @@ function restoreSavedData(savedData, selectedEvent, selectedRoute) {
           const people = document.querySelectorAll('#people-area .person');
 
           people.forEach(person => {
-            if (person.textContent.trim() === String(memberName).trim()) {
+            if (person.textContent.trim() === memberName) {
               zone.appendChild(person);
             }
           });
