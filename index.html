@@ -1129,9 +1129,10 @@ async function confirmDispatch() {
 
     const members = [];
 
-    car.querySelectorAll('.person').forEach(person => {
-      members.push(person.textContent.trim());
-    });
+  car.querySelectorAll('.person').forEach(person => {
+  const text = person.textContent.trim();
+  if (text) members.push(text);
+});
 
     if (members.length === 0) return;
 
