@@ -583,8 +583,19 @@ padding: 2px;
 </div>
 
     </div>
-<div class="cars-area">
-  </div>
+<div class="car-sections">
+
+  <section class="car-section active-section">
+    <h2>✅ 使う車</h2>
+    <div id="active-cars" class="cars-area"></div>
+  </section>
+
+  <section class="car-section inactive-section">
+    <h2>🚫 使わない車</h2>
+    <div id="inactive-cars" class="cars-area"></div>
+  </section>
+
+</div>
 
 </div>
   </div>
@@ -608,7 +619,8 @@ function getPartClass(part) {
 }
 
 function createCars(data, children, selectedEvent, savedData = []) {
-  const carsArea = document.querySelector('.cars-area');
+  const activeCarsArea = document.getElementById('active-cars');
+　const inactiveCarsArea = document.getElementById('inactive-cars');
   const peopleArea = document.getElementById('people-area');
 
   const selectedRoute =
@@ -648,7 +660,8 @@ uniqueMembers.forEach(item => {
 //document.querySelectorAll('.car .person').forEach(person => {
 //  peopleArea.appendChild(person);
 //});
-  carsArea.innerHTML = '';
+  activeCarsArea.innerHTML = '';
+inactiveCarsArea.innerHTML = '';
 
 const drivers = data.filter(item =>
   item.event === selectedEvent &&
@@ -695,7 +708,8 @@ if (item.availability === '往復可能') {
  setupDropzone(zone);
 setupCarToggle(car);
 
-carsArea.appendChild(car);
+inactiveCarsArea.appendChild(car);
+car.classList.add('disabled-car');
 });
      
      updateCounts();
