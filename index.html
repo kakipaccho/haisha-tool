@@ -862,6 +862,12 @@ function setupDropzone(zone) {
     if (draggedItem) {
       const car = zone.closest('.car');
 
+      if (car && car.classList.contains('disabled-car')) {
+  alert('この車は使わない設定です');
+  draggedItem = null;
+  return;
+}
+
       if (car && !car.classList.contains('disabled-car')) {
         const capacity = Number(car.dataset.capacity);
         const people = zone.querySelectorAll('.person').length;
@@ -888,6 +894,11 @@ function setupDropzone(zone) {
       e.stopPropagation();
 
       const car = zone.closest('.car');
+
+      if (car && car.classList.contains('disabled-car')) {
+  alert('この車は使わない設定です');
+  return;
+}
 
       if (car && !car.classList.contains('disabled-car')) {
         const capacity = Number(car.dataset.capacity);
