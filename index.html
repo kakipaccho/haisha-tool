@@ -934,6 +934,30 @@ function setupCarToggle(car) {
     e.preventDefault();
     e.stopPropagation();
 
+    const activeCarsArea = document.getElementById('active-cars');
+    const inactiveCarsArea = document.getElementById('inactive-cars');
+
+    car.classList.toggle('disabled-car');
+
+    if (car.classList.contains('disabled-car')) {
+      inactiveCarsArea.appendChild(car);
+    } else {
+      activeCarsArea.appendChild(car);
+    }
+
+    updateButtonText();
+    updateCounts();
+  });
+
+  car.insertBefore(button, car.firstChild);
+}
+
+  updateButtonText();
+
+  button.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     car.classList.toggle('disabled-car');
 
     if (car.classList.contains('disabled-car')) {
@@ -1070,7 +1094,8 @@ if (summary) {
     setupDropzone(zone);
 　setupCarToggle(newCar);
 
-document.querySelector('.cars-area').appendChild(newCar);
+newCar.classList.add('disabled-car');
+document.getElementById('inactive-cars').appendChild(newCar);
 
     carNameInput.value = '';
     capacityInput.value = '';
