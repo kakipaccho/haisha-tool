@@ -503,6 +503,33 @@ padding: 2px;
   margin-bottom: 6px;
 }
   
+  
+
+/* ===== 車カード折りたたみ ===== */
+.car-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.car-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.car-collapse-icon {
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.car.collapsed .dropzone {
+  display: none;
+}
+
+.car.collapsed {
+  min-height: unset;
+}
+
   </style>
 </head>
 
@@ -601,8 +628,14 @@ padding: 2px;
   </div>
   
 
- <script>
-   const GAS_URL = 'https://script.google.com/macros/s/AKfycbwiL44FlJHSHGdn9tboQEsfH8pt2fLA0X3GxhHZIXFkrh1TRfZ_OY0pUlWdESiSCatT/exec';
+  <script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwiL44FlJHSHGdn9tboQEsfH8pt2fLA0X3GxhHZIXFkrh1TRfZ_OY0pUlWdESiSCatT/exec';
+
+let draggedItem = null;
+let selectedPerson = null;
+let latestData = [];
+let latestChildren = [];
+let latestSavedData = [];
 
 loadEvents();
 
@@ -618,153 +651,193 @@ function getPartClass(part) {
   return 'other';
 }
 
-function createCars(data, children, selectedEvent, savedData = []) {
-  const activeCarsArea = document.getElementById('active-cars');
-　const inactiveCarsArea = document.getElementById('inactive-cars');
-  const peopleArea = document.getElementById('people-area');
-
-  const selectedRoute =
-    document.getElementById('route-select').value;
-
-  peopleArea.innerHTML = '';
-
- const uniqueMembers = (children || []).filter(child => {
-  return child.familyName;
-});
-  
-  uniqueMembers.forEach(item => {
-      if (!uniqueMembers.some(member =>
-        member.familyName === item.familyName
-      )) {
-        uniqueMembers.push({
-          familyName: item.familyName,
-          part: item.part
-        });
-      }
-    });
-
-uniqueMembers.forEach(item => {
-  const person = document.createElement('div');
-
-  person.className = 'person';
-  person.classList.add(getPartClass(item.part));
-
-  person.draggable = true;
-  person.textContent = item.familyName;
-
-  setupPerson(person);
-
-  peopleArea.appendChild(person);
-});
-
-//document.querySelectorAll('.car .person').forEach(person => {
-//  peopleArea.appendChild(person);
-//});
-  activeCarsArea.innerHTML = '';
-inactiveCarsArea.innerHTML = '';
-
-const drivers = data.filter(item =>
-  item.event === selectedEvent &&
-  item.route === selectedRoute &&
-  item.availability &&
-  item.availability.includes('可能')
-);
-     
-　drivers.sort((a, b) => {
-  const scoreA = Number(a.historyCount) + (a.recentUsed ? 100 : 0);
-  const scoreB = Number(b.historyCount) + (b.recentUsed ? 100 : 0);
-
-  return scoreA - scoreB;
-});
-     
-  drivers.forEach(item => {
-  if (item.familyName === '人') return;
-
-  const capacity = parseInt(item.capacity, 10) || 0;
-
-  const car = document.createElement('div');
-  car.className = 'car';
-  car.dataset.capacity = capacity;
-
-if (item.availability === '往復可能') {
-  car.classList.add('round-trip');
-} else if (item.availability === '行きのみ可能') {
-  car.classList.add('go-only');
-} else if (item.availability === '帰りのみ可能') {
-  car.classList.add('back-only');
+function getSelectedRoute() {
+  return document.getElementById('route-select').value;
 }
 
+function getSelectedEvent() {
+  return document.getElementById('event-select').value;
+}
+
+function getCarName(car) {
+  return car.dataset.carName || '';
+}
+
+function createPersonElement(item) {
+  const person = document.createElement('div');
+  person.className = 'person';
+  person.classList.add(getPartClass(item.part));
+  person.draggable = true;
+  person.textContent = item.familyName;
+  setupPerson(person);
+  return person;
+}
+
+function createCarElement(item) {
+  const capacity = parseInt(item.capacity, 10) || 0;
+  const car = document.createElement('div');
+
+  car.className = 'car disabled-car';
+  car.dataset.capacity = capacity;
+  car.dataset.carName = item.familyName;
+
+  if (item.availability === '往復可能') {
+    car.classList.add('round-trip');
+  } else if (item.availability === '行きのみ可能') {
+    car.classList.add('go-only');
+  } else if (item.availability === '帰りのみ可能') {
+    car.classList.add('back-only');
+  }
+
   car.innerHTML = `
-    <h2>
-      🚗 ${item.familyName}<br>
-      <span class="remaining-text">
-  <span class="label">残</span><span class="count">${capacity}</span><span class="unit">席</span>
-</span>
-    </h2>
+    <div class="car-header">
+      <div class="car-title-row">
+        <span class="car-collapse-icon">▼</span>
+        <h2>
+          🚗 ${item.familyName}<br>
+          <span class="remaining-text">
+            <span class="label">残</span><span class="count">${capacity}</span><span class="unit">席</span>
+          </span>
+        </h2>
+      </div>
+    </div>
     <div class="dropzone"></div>
   `;
 
-  const zone = car.querySelector('.dropzone');
- setupDropzone(zone);
-setupCarToggle(car);
+  setupCarAccordion(car);
+  setupDropzone(car.querySelector('.dropzone'));
+  setupCarToggle(car);
 
-inactiveCarsArea.appendChild(car);
-car.classList.add('disabled-car');
-});
-     
-     updateCounts();
+  return car;
 }
 
-function restoreSavedData(savedData, selectedEvent, selectedRoute) {
-  const targetSaved = savedData.filter(item =>
+function setupCarAccordion(car) {
+  const header = car.querySelector('.car-header');
+  const icon = car.querySelector('.car-collapse-icon');
+
+  header.addEventListener('click', (e) => {
+    if (e.target.closest('button')) return;
+
+    car.classList.toggle('collapsed');
+    icon.textContent = car.classList.contains('collapsed') ? '▶' : '▼';
+  });
+}
+
+function setCarActive(car, isActive) {
+  const activeCarsArea = document.getElementById('active-cars');
+  const inactiveCarsArea = document.getElementById('inactive-cars');
+
+  if (isActive) {
+    car.classList.remove('disabled-car');
+    activeCarsArea.appendChild(car);
+  } else {
+    car.classList.add('disabled-car');
+    inactiveCarsArea.appendChild(car);
+  }
+
+  if (typeof car.updateToggleButtonText === 'function') {
+    car.updateToggleButtonText();
+  }
+}
+
+function createCars(data, children, selectedEvent, savedData = []) {
+  latestData = data || [];
+  latestChildren = children || [];
+  latestSavedData = savedData || [];
+
+  const activeCarsArea = document.getElementById('active-cars');
+  const inactiveCarsArea = document.getElementById('inactive-cars');
+  const peopleArea = document.getElementById('people-area');
+  const selectedRoute = getSelectedRoute();
+
+  peopleArea.innerHTML = '';
+  activeCarsArea.innerHTML = '';
+  inactiveCarsArea.innerHTML = '';
+
+  const uniqueMembers = [];
+  const seenMembers = new Set();
+
+  (children || []).forEach(child => {
+    if (!child.familyName || seenMembers.has(child.familyName)) return;
+    seenMembers.add(child.familyName);
+    uniqueMembers.push({
+      familyName: child.familyName,
+      part: child.part
+    });
+  });
+
+  uniqueMembers.forEach(item => {
+    peopleArea.appendChild(createPersonElement(item));
+  });
+
+  const drivers = (data || []).filter(item =>
     item.event === selectedEvent &&
-    item.route === selectedRoute
+    item.route === selectedRoute &&
+    item.availability &&
+    item.availability.includes('可能')
   );
 
-  targetSaved.forEach(savedCar => {
-    const cars = document.querySelectorAll('.car');
+  drivers.sort((a, b) => {
+    const scoreA = Number(a.historyCount) + (a.recentUsed ? 100 : 0);
+    const scoreB = Number(b.historyCount) + (b.recentUsed ? 100 : 0);
+    return scoreA - scoreB;
+  });
 
-    cars.forEach(car => {
-      const carName = car.querySelector('h2').childNodes[0].textContent
-        .replace('🚗', '')
-        .trim();
-
-      if (carName === savedCar.carName) {
-        const zone = car.querySelector('.dropzone');
-
-        savedCar.members.forEach(memberName => {
-          const people = document.querySelectorAll('#people-area .person');
-
-          people.forEach(person => {
-            if (person.textContent.trim() === memberName) {
-              zone.appendChild(person);
-            }
-          });
-        });
-      }
-    });
+  drivers.forEach(item => {
+    if (item.familyName === '人') return;
+    const car = createCarElement(item);
+    inactiveCarsArea.appendChild(car);
   });
 
   updateCounts();
 }
 
+function restoreSavedData(savedData, selectedEvent, selectedRoute) {
+  const targetSaved = (savedData || []).filter(item =>
+    item.event === selectedEvent &&
+    item.route === selectedRoute
+  );
 
+  targetSaved.forEach(savedCar => {
+    const car = [...document.querySelectorAll('.car')].find(car =>
+      getCarName(car) === savedCar.carName
+    );
 
-    function markPairedRouteCars(savedData, selectedEvent, selectedRoute) {
+    if (!car) return;
+
+    const zone = car.querySelector('.dropzone');
+
+    (savedCar.members || []).forEach(memberName => {
+      const person = [...document.querySelectorAll('#people-area .person')].find(person =>
+        person.textContent.trim() === memberName
+      );
+
+      if (person) {
+        zone.appendChild(person);
+      }
+    });
+
+    if ((savedCar.members || []).length > 0) {
+      setCarActive(car, true);
+    }
+  });
+
+  updateCounts();
+}
+
+function markPairedRouteCars(savedData, selectedEvent, selectedRoute) {
   const oppositeRoute = selectedRoute === '行き' ? '帰り' : '行き';
 
-  const oppositeSaved = savedData.filter(item =>
+  const oppositeSaved = (savedData || []).filter(item =>
     item.event === selectedEvent &&
     item.route === oppositeRoute
   );
 
   document.querySelectorAll('.car').forEach(car => {
-    const carName = car.querySelector('h2').childNodes[0].textContent
-      .replace('🚗', '')
-      .trim();
+    car.classList.remove('paired-route');
 
     const isPaired = oppositeSaved.some(savedCar =>
-      savedCar.carName === carName
+      savedCar.carName === getCarName(car)
     );
 
     if (isPaired) {
@@ -772,62 +845,57 @@ function restoreSavedData(savedData, selectedEvent, selectedRoute) {
     }
   });
 }
-   
-async function loadEvents() {
 
+async function loadEvents() {
   const response = await fetch(GAS_URL);
- const responseData = await response.json();
-const data = responseData.candidates;
-const children = responseData.children;
-const savedData = responseData.saved;
+  const responseData = await response.json();
+
+  const data = responseData.candidates || [];
+  const children = responseData.children || [];
+  const savedData = responseData.saved || [];
+
+  latestData = data;
+  latestChildren = children;
+  latestSavedData = savedData;
 
   const select = document.getElementById('event-select');
 
   const events = [...new Set(data.map(item => item.event))]
-  .sort((a, b) => {
-    const dateA = a.match(/\d+\/\d+/)?.[0];
-    const dateB = b.match(/\d+\/\d+/)?.[0];
-
-    return new Date(`2026/${dateA}`) - new Date(`2026/${dateB}`);
-  });
+    .sort((a, b) => {
+      const dateA = a.match(/\d+\/\d+/)?.[0];
+      const dateB = b.match(/\d+\/\d+/)?.[0];
+      return new Date(`2026/${dateA}`) - new Date(`2026/${dateB}`);
+    });
 
   select.innerHTML = '';
 
-events.forEach(eventName => {
+  events.forEach(eventName => {
+    const option = document.createElement('option');
+    option.value = eventName;
+    option.textContent = eventName;
 
-  const option = document.createElement('option');
+    const matchedItem = data.find(item => item.event === eventName);
+    option.dataset.date = matchedItem?.date || '';
 
-  option.value = eventName;
-  option.textContent = eventName;
+    select.appendChild(option);
+  });
 
-  const matchedItem = data.find(item => item.event === eventName);
-  option.dataset.date = matchedItem?.date || '';
+  select.onchange = renderCurrentSelection;
+  document.getElementById('route-select').onchange = renderCurrentSelection;
 
-  select.appendChild(option);
-
-});
-
-select.addEventListener('change', () => {
- createCars(data, children, select.value, savedData);
-  restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
-  markPairedRouteCars(savedData, select.value, document.getElementById('route-select').value);
-});
-
-document.getElementById('route-select').addEventListener('change', () => {
- createCars(data, children, select.value, savedData);
-  restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
-  markPairedRouteCars(savedData, select.value, document.getElementById('route-select').value);
-});
-
-createCars(data, children, select.value, savedData);
-restoreSavedData(savedData, select.value, document.getElementById('route-select').value);
- markPairedRouteCars(savedData, select.value, document.getElementById('route-select').value);
-
+  renderCurrentSelection();
 }
-  let draggedItem = null;
-  let selectedPerson = null;
 
- function setupPerson(person) {
+function renderCurrentSelection() {
+  const selectedEvent = getSelectedEvent();
+  const selectedRoute = getSelectedRoute();
+
+  createCars(latestData, latestChildren, selectedEvent, latestSavedData);
+  restoreSavedData(latestSavedData, selectedEvent, selectedRoute);
+  markPairedRouteCars(latestSavedData, selectedEvent, selectedRoute);
+}
+
+function setupPerson(person) {
   person.addEventListener('dragstart', () => {
     draggedItem = person;
   });
@@ -837,10 +905,10 @@ restoreSavedData(savedData, select.value, document.getElementById('route-select'
     e.stopPropagation();
 
     document.querySelectorAll('.person').forEach(p => {
-  p.classList.remove('selected');
-});
-    selectedPerson = person;
+      p.classList.remove('selected');
+    });
 
+    selectedPerson = person;
     person.classList.add('selected');
 
     const selectedName = document.getElementById('selected-name');
@@ -859,279 +927,226 @@ function setupDropzone(zone) {
   });
 
   zone.addEventListener('drop', () => {
-    if (draggedItem) {
-      const car = zone.closest('.car');
+    if (!draggedItem) return;
 
-      if (car && car.classList.contains('disabled-car')) {
-  alert('この車は使わない設定です');
-  draggedItem = null;
-  return;
-}
-
-      if (car && !car.classList.contains('disabled-car')) {
-        const capacity = Number(car.dataset.capacity);
-        const people = zone.querySelectorAll('.person').length;
-
-        if (people >= capacity) {
-          alert('この車は満席です！');
-          draggedItem = null;
-          return;
-        }
-      }
-
-      zone.appendChild(draggedItem);
+    if (!canMovePersonToZone(zone)) {
       draggedItem = null;
-      updateCounts();
+      return;
     }
+
+    zone.appendChild(draggedItem);
+    draggedItem = null;
+    updateCounts();
   });
 
   zone.addEventListener('click', moveSelectedPerson);
   zone.addEventListener('touchstart', moveSelectedPerson);
 
   function moveSelectedPerson(e) {
-    if (selectedPerson) {
-      e.preventDefault();
-      e.stopPropagation();
+    if (!selectedPerson) return;
 
-      const car = zone.closest('.car');
+    e.preventDefault();
+    e.stopPropagation();
 
-      if (car && car.classList.contains('disabled-car')) {
-  alert('この車は使わない設定です');
-  return;
-}
+    if (!canMovePersonToZone(zone)) return;
 
-      if (car && !car.classList.contains('disabled-car')) {
-        const capacity = Number(car.dataset.capacity);
-        const people = zone.querySelectorAll('.person').length;
+    zone.appendChild(selectedPerson);
+    selectedPerson.classList.remove('selected');
+    selectedPerson = null;
 
-        if (people >= capacity) {
-          alert('この車は満席です！');
-          return;
-        }
-      }
-
-      zone.appendChild(selectedPerson);
-
-      selectedPerson.classList.remove('selected');
-      selectedPerson = null;
-
-      const selectedName = document.getElementById('selected-name');
-      if (selectedName) {
-        selectedName.textContent = '選択中：なし';
-      }
-
-      updateCounts();
+    const selectedName = document.getElementById('selected-name');
+    if (selectedName) {
+      selectedName.textContent = '選択中：なし';
     }
+
+    updateCounts();
   }
 }
 
+function canMovePersonToZone(zone) {
+  const car = zone.closest('.car');
 
-document.querySelectorAll('.person').forEach(setupPerson);
-document.querySelectorAll('.dropzone').forEach(setupDropzone);
+  if (car && car.classList.contains('disabled-car')) {
+    alert('この車は使わない設定です');
+    return false;
+  }
+
+  if (car) {
+    const capacity = Number(car.dataset.capacity);
+    const people = zone.querySelectorAll('.person').length;
+
+    if (people >= capacity) {
+      alert('この車は満席です！');
+      return false;
+    }
+  }
+
+  return true;
+}
 
 function setupCarToggle(car) {
   const button = document.createElement('button');
   button.className = 'car-toggle-button';
 
-  function updateButtonText() {
+  car.updateToggleButtonText = function () {
     button.textContent = car.classList.contains('disabled-car')
       ? '使う'
       : '使わない';
-  }
-
-  updateButtonText();
+  };
 
   button.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const activeCarsArea = document.getElementById('active-cars');
-    const inactiveCarsArea = document.getElementById('inactive-cars');
-
-    car.classList.toggle('disabled-car');
-
-    if (car.classList.contains('disabled-car')) {
-      inactiveCarsArea.appendChild(car);
-    } else {
-      activeCarsArea.appendChild(car);
-    }
-
-    updateButtonText();
+    setCarActive(car, car.classList.contains('disabled-car'));
     updateCounts();
   });
 
+  car.updateToggleButtonText();
   car.insertBefore(button, car.firstChild);
 }
-   
+
 function updateCounts() {
   const cars = document.querySelectorAll('.car');
+  const totalChildren = document.querySelectorAll('.person').length;
 
   let totalCapacity = 0;
-  let totalUsed = 0;
 
   cars.forEach(car => {
     const capacity = Number(car.dataset.capacity);
     const people = car.querySelectorAll('.person').length;
     const remaining = capacity - people;
     const count = car.querySelector('.count');
+    const label = car.querySelector('.label');
+    const unit = car.querySelector('.unit');
 
-    if (car.classList.contains('disabled-car')) return;
+    if (car.classList.contains('disabled-car')) {
+      car.classList.remove('full');
+      if (count) count.textContent = capacity;
+      if (label) label.style.display = 'inline';
+      if (unit) unit.style.display = 'inline';
+      return;
+    }
+
     totalCapacity += capacity;
-    totalUsed += people;
 
-if (remaining <= 0) {
-  count.textContent = '満席';
+    if (remaining <= 0) {
+      count.textContent = '満席';
+      label.style.display = 'none';
+      unit.style.display = 'none';
+      car.classList.add('full');
+    } else {
+      count.textContent = remaining;
+      label.style.display = 'inline';
+      unit.style.display = 'inline';
+      car.classList.remove('full');
+    }
+  });
 
-  car.querySelector('.label').style.display = 'none';
-  car.querySelector('.unit').style.display = 'none';
+  const seatDiff = totalCapacity - totalChildren;
+  const summary = document.getElementById('seat-summary');
 
-  car.classList.add('full');
+  if (!summary) return;
 
-} else {
-  count.textContent = remaining;
-
-  car.querySelector('.label').style.display = 'inline';
-  car.querySelector('.unit').style.display = 'inline';
-
-  car.classList.remove('full');
-}
-
-const totalChildren = document.querySelectorAll('.person').length;
-const seatDiff = totalCapacity - totalChildren;
-const summary = document.getElementById('seat-summary');
-
-if (summary) {
-
-  summary.classList.remove(
-    'seat-danger',
-    'seat-ok',
-    'seat-perfect'
-  );
+  summary.classList.remove('seat-danger', 'seat-ok', 'seat-perfect');
 
   if (seatDiff > 0) {
     summary.textContent = `余裕：${seatDiff}席`;
     summary.classList.add('seat-ok');
-
   } else if (seatDiff === 0) {
     summary.textContent = '席数ぴったり！';
     summary.classList.add('seat-perfect');
-
   } else {
     summary.textContent = `必要あと：${Math.abs(seatDiff)}席`;
     summary.classList.add('seat-danger');
   }
 }
+
+function addPerson() {
+  const input = document.getElementById('nameInput');
+  const name = input.value.trim();
+
+  if (name === '') return;
+
+  const newPerson = createPersonElement({
+    familyName: name,
+    part: ''
   });
+
+  document.getElementById('people-area').appendChild(newPerson);
+  input.value = '';
+  updateCounts();
 }
 
-  function addPerson() {
-    const input = document.getElementById('nameInput');
-    const name = input.value.trim();
+function deletePerson() {
+  const input = document.getElementById('deleteInput');
+  const name = input.value.trim();
 
-    if (name === '') return;
+  if (name === '') return;
 
-    const newPerson = document.createElement('div');
-    newPerson.className = 'person';
-    newPerson.draggable = true;
-    newPerson.textContent = name;
+  document.querySelectorAll('.person').forEach(person => {
+    if (person.textContent.trim() === name) {
+      person.remove();
+    }
+  });
 
-    setupPerson(newPerson);
-    document.getElementById('people-area').appendChild(newPerson);
+  updateCounts();
+  input.value = '';
+}
 
-    input.value = '';
-  }
+function addCar() {
+  const carNameInput = document.getElementById('carNameInput');
+  const capacityInput = document.getElementById('capacityInput');
 
-  function deletePerson() {
-    const input = document.getElementById('deleteInput');
-    const name = input.value.trim();
+  const carName = carNameInput.value.trim();
+  const capacity = capacityInput.value;
 
-    if (name === '') return;
+  if (carName === '' || capacity === '') return;
 
-    document.querySelectorAll('.person').forEach(person => {
-      if (person.textContent === name) {
-        person.remove();
-      }
+  const newCar = createCarElement({
+    familyName: carName,
+    capacity: capacity,
+    availability: ''
+  });
+
+  document.getElementById('inactive-cars').appendChild(newCar);
+
+  carNameInput.value = '';
+  capacityInput.value = '';
+
+  updateCounts();
+}
+
+function deleteCar() {
+  const input = document.getElementById('deleteCarInput');
+  const carName = input.value.trim();
+
+  if (carName === '') return;
+
+  document.querySelectorAll('.car:not(.disabled-car)').forEach(car => {
+    if (!getCarName(car).includes(carName)) return;
+
+    const peopleInCar = car.querySelectorAll('.person');
+    const peopleArea = document.getElementById('people-area');
+
+    peopleInCar.forEach(person => {
+      peopleArea.appendChild(person);
     });
 
-    updateCounts();
-    input.value = '';
-  }
+    car.remove();
+  });
 
-  function addCar() {
-    const carNameInput = document.getElementById('carNameInput');
-    const capacityInput = document.getElementById('capacityInput');
-
-    const carName = carNameInput.value.trim();
-    const capacity = capacityInput.value;
-
-    if (carName === '' || capacity === '') return;
-
-    const newCar = document.createElement('div');
-    newCar.className = 'car';
-    newCar.dataset.capacity = capacity;
-
-    newCar.innerHTML = `
-      <h2>
-  🚗 ${carName}<br>
-  <span class="remaining-text">
-  <span class="label">残</span><span class="count">${capacity}</span><span class="unit">席</span>
-</span>
-</h2>
-      <div class="dropzone"></div>
-    `;
-
-    const zone = newCar.querySelector('.dropzone');
-    setupDropzone(zone);
-　setupCarToggle(newCar);
-
-newCar.classList.add('disabled-car');
-document.getElementById('inactive-cars').appendChild(newCar);
-
-    carNameInput.value = '';
-    capacityInput.value = '';
-
-    updateCounts();
-  }
-
-  function deleteCar() {
-    const input = document.getElementById('deleteCarInput');
-    const carName = input.value.trim();
-
-    if (carName === '') return;
-
-    document.querySelectorAll('.car:not(.disabled-car)').forEach(car => {
-      if (car.classList.contains('disabled-car')) return;
-      const title = car.querySelector('h2').textContent;
-
-      if (title.includes(carName)) {
-        const peopleInCar = car.querySelectorAll('.person');
-        const peopleArea = document.getElementById('people-area');
-
-        peopleInCar.forEach(person => {
-          peopleArea.appendChild(person);
-        });
-
-        car.remove();
-      }
-    });
-
-    input.value = '';
-    updateCounts();
-  }
+  input.value = '';
+  updateCounts();
+}
 
 async function saveToSheet() {
-
   const cars = [];
 
   document.querySelectorAll('.car:not(.disabled-car)').forEach(car => {
-
-const name = car.querySelector('h2').childNodes[0].textContent
-  .replace('🚗', '')
-  .trim();
-
+    const name = getCarName(car);
     const capacity = car.dataset.capacity;
     const remaining = car.querySelector('.count').textContent;
-
     const members = [];
 
     car.querySelectorAll('.person').forEach(person => {
@@ -1140,58 +1155,50 @@ const name = car.querySelector('h2').childNodes[0].textContent
 
     if (members.length === 0) return;
 
-cars.push({
-  name,
-  capacity,
-  remaining,
-  members
-});
-
+    cars.push({
+      name,
+      capacity,
+      remaining,
+      members
+    });
   });
 
-const selectedEvent = document.getElementById('event-select').value;
-const selectedRoute = document.getElementById('route-select').value;
+  const selectedEvent = getSelectedEvent();
+  const selectedRoute = getSelectedRoute();
 
   if (cars.length === 0) {
-  alert('配置された子どもがいないため、保存しませんでした');
-  return;
-}
+    alert('配置された子どもがいないため、保存しませんでした');
+    return;
+  }
 
-console.log("保存データ", cars);
-console.log("予定", selectedEvent);
-console.log("区分", selectedRoute);
-await fetch(GAS_URL, {
-  method: 'POST',
-  mode: 'no-cors',
-  body: JSON.stringify({
-    event: selectedEvent,
-    route: selectedRoute,
-    cars: cars
-  })
-});
+  console.log('保存データ', cars);
+  console.log('予定', selectedEvent);
+  console.log('区分', selectedRoute);
+
+  await fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify({
+      event: selectedEvent,
+      route: selectedRoute,
+      cars: cars
+    })
+  });
 
   alert('スプレッドシートに保存しました！');
 }
-  //  setTimeout(() => {
- //  loadEvents();
-// }, 500);
-   
-async function confirmDispatch() {
 
+async function confirmDispatch() {
   const cars = [];
 
   document.querySelectorAll('.car:not(.disabled-car)').forEach(car => {
-
-    const name = car.querySelector('h2').childNodes[0].textContent
-      .replace('🚗', '')
-      .trim();
-
+    const name = getCarName(car);
     const members = [];
 
-  car.querySelectorAll('.person').forEach(person => {
-  const text = person.textContent.trim();
-  if (text) members.push(text);
-});
+    car.querySelectorAll('.person').forEach(person => {
+      const text = person.textContent.trim();
+      if (text) members.push(text);
+    });
 
     if (members.length === 0) return;
 
@@ -1200,23 +1207,22 @@ async function confirmDispatch() {
       count: members.length,
       members
     });
-
   });
 
-  const selectedEvent = document.getElementById('event-select').value;
-  const selectedRoute = document.getElementById('route-select').value;
-const selectedDate =
-  document.getElementById('event-select').selectedOptions[0].dataset.date;
+  const selectedEvent = getSelectedEvent();
+  const selectedRoute = getSelectedRoute();
+  const selectedDate = document.getElementById('event-select').selectedOptions[0].dataset.date;
   const dateObj = new Date(selectedDate);
 
   dateObj.setHours(dateObj.getHours() + 9);
 
-const formattedDate =
-  dateObj.getFullYear() + '/' +
-  String(dateObj.getMonth() + 1).padStart(2, '0') + '/' +
-  String(dateObj.getDate()).padStart(2, '0');
+  const formattedDate =
+    dateObj.getFullYear() + '/' +
+    String(dateObj.getMonth() + 1).padStart(2, '0') + '/' +
+    String(dateObj.getDate()).padStart(2, '0');
 
   console.log('confirm cars', cars);
+
   await fetch(GAS_URL, {
     method: 'POST',
     mode: 'no-cors',
@@ -1235,8 +1241,6 @@ const formattedDate =
     loadEvents();
   }, 500);
 }
-   
 </script>
-
 </body>
 </html>
