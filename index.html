@@ -537,10 +537,22 @@ padding: 2px;
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   border-radius: 999px;
-  padding: 6px 10px;
+  padding: 9px 14px;
   font-weight: bold;
-  font-size: 15px;
+  font-size: 22px;
   color: #1e3a8a;
+}
+
+.contact-header-event {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.contact-header-route {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.18);
 }
 
 .contact-cards {
@@ -642,8 +654,8 @@ padding: 2px;
   }
 
   .contact-header-item {
-    font-size: 13px;
-    padding: 5px 8px;
+    font-size: 18px;
+    padding: 7px 10px;
   }
 
   .contact-cards {
@@ -1543,17 +1555,13 @@ function showContactLayout() {
 
   let html = '<div class="contact-header">';
 
-  if (data.eventDate) {
-    html += `<div class="contact-header-item">📅 ${escapeHtml(data.eventDate)}</div>`;
-  }
-
   if (data.eventName) {
-    html += `<div class="contact-header-item">📋 ${escapeHtml(data.eventName)}</div>`;
+    html += `<div class="contact-header-item contact-header-event">📋 ${escapeHtml(data.eventName)}</div>`;
   }
 
   if (data.routeName) {
     const routeIcon = data.routeName === '帰り' ? '⬅️' : '➡️';
-    html += `<div class="contact-header-item">${routeIcon} ${escapeHtml(data.routeName)}</div>`;
+    html += `<div class="contact-header-item contact-header-route">${routeIcon} ${escapeHtml(data.routeName)}</div>`;
   }
 
   html += '</div>';
@@ -1583,8 +1591,8 @@ function showContactLayout() {
 
 function buildContactText() {
   const data = getContactData();
-  const titleParts = [data.eventDate, data.eventName, data.routeName].filter(Boolean);
-  let text = `【${titleParts.join(' ')}】\n\n`;
+  const titleParts = [data.eventName, data.routeName].filter(Boolean);
+  let text = `【${titleParts.join('・')}】\n\n`;
 
   data.cars.forEach(car => {
     const memberNames = car.members.map(member => member.name);
