@@ -505,6 +505,70 @@ padding: 2px;
   
   
 
+
+/* ===== 連絡用レイアウト ===== */
+.contact-layout {
+  background: #fff;
+  color: #222;
+  padding: 16px;
+  margin: 14px 0;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.contact-layout.hidden {
+  display: none;
+}
+
+.contact-layout h2 {
+  font-size: 18px;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.contact-car {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.contact-car:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.contact-car-title {
+  font-weight: bold;
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.contact-member {
+  padding-left: 1em;
+}
+
+.contact-empty {
+  margin: 0;
+  color: #666;
+}
+
+@media (max-width: 600px) {
+  .contact-layout {
+    font-size: 15px;
+    padding: 12px;
+    margin: 10px 0;
+  }
+
+  .contact-layout h2 {
+    font-size: 16px;
+  }
+}
+
+
 /* ===== 車カード折りたたみ ===== */
 .car-header {
   cursor: pointer;
@@ -638,9 +702,13 @@ padding: 2px;
     <button type="button" onclick="closeAllCars()">全部閉じる</button>
     <button type="button" id="active-only-button" onclick="toggleActiveOnlyView()">使用車だけ表示</button>
     <button type="button" onclick="resetChildPlacement()">配置リセット</button>
+    <button type="button" onclick="showContactLayout()">連絡用表示</button>
+    <button type="button" onclick="copyContactText()">コピー用テキスト</button>
   </div>
 
 </div>
+
+<div id="contact-layout" class="contact-layout hidden"></div>
 
     </div>
 <div class="car-sections">
@@ -1264,6 +1332,137 @@ function resetChildPlacement() {
   }
 
   updateCounts();
+}
+
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function getSelectedEventDateText() {
+  const option = document.getElementById('event-select').selectedOptions[0];
+  return option?.dataset?.date || '';
+}
+
+function getContactData() {
+  const eventName = getSelectedEvent();
+  const routeName = getSelectedRoute();
+  const eventDate = getSelectedEventDateText();
+  const cars = [];
+
+  document.querySelectorAll('.car:not(.disabled-car)').forEach(car => {
+    const carName = getCarName(car);
+    const members = [];
+
+    car.querySelectorAll('.person').forEach(person => {
+      const name = person.textContent.trim();
+      if (name) members.push(name);
+    });
+
+    if (members.length === 0) return;
+
+    cars.push({
+      carName,
+      members
+    });
+  });
+
+  return {
+    eventName,
+    routeName,
+    eventDate,
+    cars
+  };
+}
+
+function showContactLayout() {
+  const layout = document.getElementById('contact-layout');
+  const data = getContactData();
+
+  if (!layout) return;
+
+  if (data.cars.length === 0) {
+    layout.innerHTML = '<p class="contact-empty">連絡用に表示できる配車がありません。</p>';
+    layout.classList.remove('hidden');
+    return;
+  }
+
+  const titleParts = [data.eventDate, data.eventName, data.routeName].filter(Boolean);
+  let html = `<h2>${escapeHtml(titleParts.join('　'))}</h2>`;
+
+  data.cars.forEach(car => {
+    html += '<div class="contact-car">';
+    html += `<div class="contact-car-title">${escapeHtml(car.carName)}</div>`;
+
+    car.members.forEach(member => {
+      html += `<div class="contact-member">・${escapeHtml(member)}</div>`;
+    });
+
+    html += '</div>';
+  });
+
+  layout.innerHTML = html;
+  layout.classList.remove('hidden');
+  layout.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function buildContactText() {
+  const data = getContactData();
+  const titleParts = [data.eventDate, data.eventName, data.routeName].filter(Boolean);
+  let text = `【${titleParts.join(' ')}】\n\n`;
+
+  data.cars.forEach(car => {
+    text += `${car.carName}：${car.members.join('、')}\n`;
+  });
+
+  return text.trim();
+}
+
+function copyContactText() {
+  const data = getContactData();
+
+  if (data.cars.length === 0) {
+    alert('コピーできる配車がありません。');
+    return;
+  }
+
+  const text = buildContactText();
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        alert('連絡用テキストをコピーしました！');
+      })
+      .catch(() => {
+        fallbackCopyContactText(text);
+      });
+  } else {
+    fallbackCopyContactText(text);
+  }
+}
+
+function fallbackCopyContactText(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+
+  try {
+    document.execCommand('copy');
+    alert('連絡用テキストをコピーしました！');
+  } catch (error) {
+    alert('コピーに失敗しました。連絡用表示から手動でコピーしてください。');
+  }
+
+  textarea.remove();
 }
 
 async function saveToSheet() {
