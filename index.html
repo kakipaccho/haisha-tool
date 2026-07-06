@@ -508,13 +508,13 @@ padding: 2px;
 
 /* ===== 連絡用レイアウト ===== */
 .contact-layout {
-  background: #fff;
-  color: #222;
-  padding: 16px;
+  background: #ffffff;
+  color: #111827;
+  padding: 18px;
   margin: 14px 0;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 18px;
+  border: 1px solid #dbeafe;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
   font-size: 16px;
   line-height: 1.6;
 }
@@ -523,32 +523,81 @@ padding: 2px;
   display: none;
 }
 
-.contact-layout h2 {
-  font-size: 18px;
-  margin: 0 0 12px;
-  padding-bottom: 8px;
+.contact-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
   border-bottom: 2px solid #e5e7eb;
 }
 
-.contact-car {
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+.contact-header-item {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: bold;
+  font-size: 15px;
+  color: #1e3a8a;
 }
 
-.contact-car:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
+.contact-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.contact-car {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #bfdbfe;
+  border-radius: 16px;
+  padding: 12px 10px;
+  min-height: 145px;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.10);
+}
+
+.contact-car:nth-child(2n) {
+  border-color: #bbf7d0;
+}
+
+.contact-car:nth-child(3n) {
+  border-color: #fed7aa;
+}
+
+.contact-car:nth-child(4n) {
+  border-color: #ddd6fe;
+}
+
+.contact-car-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin: 0 auto 6px;
 }
 
 .contact-car-title {
   font-weight: bold;
   font-size: 17px;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.contact-members {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .contact-member {
-  padding-left: 1em;
+  font-size: 15px;
+  padding-left: 0.2em;
 }
 
 .contact-empty {
@@ -556,15 +605,52 @@ padding: 2px;
   color: #666;
 }
 
+.contact-note {
+  margin: 12px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  text-align: center;
+}
+
 @media (max-width: 600px) {
   .contact-layout {
     font-size: 15px;
     padding: 12px;
     margin: 10px 0;
+    border-radius: 14px;
   }
 
-  .contact-layout h2 {
-    font-size: 16px;
+  .contact-header {
+    gap: 6px;
+  }
+
+  .contact-header-item {
+    font-size: 13px;
+    padding: 5px 8px;
+  }
+
+  .contact-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .contact-car {
+    min-height: 128px;
+    padding: 10px 7px;
+  }
+
+  .contact-car-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 20px;
+  }
+
+  .contact-car-title {
+    font-size: 15px;
+  }
+
+  .contact-member {
+    font-size: 13px;
   }
 }
 
@@ -1344,9 +1430,33 @@ function escapeHtml(value) {
     .replace(/'/g, '&#039;');
 }
 
+function formatDateWithoutTimezone(value) {
+  if (!value) return '';
+
+  const rawText = String(value).trim();
+
+  // yyyy/MM/dd や yyyy-MM-dd が含まれていれば、タイムゾーン文字列を落として日付だけ使う
+  const dateMatch = rawText.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (dateMatch) {
+    return `${Number(dateMatch[1])}/${Number(dateMatch[2])}/${Number(dateMatch[3])}`;
+  }
+
+  const parsedDate = new Date(rawText);
+  if (!Number.isNaN(parsedDate.getTime())) {
+    return `${parsedDate.getFullYear()}/${parsedDate.getMonth() + 1}/${parsedDate.getDate()}`;
+  }
+
+  // 念のため、日本標準時や GMT 以降などの表示だけ削る
+  return rawText
+    .replace(/\s*\([^)]*標準時[^)]*\)/g, '')
+    .replace(/\s*GMT[+-]\d{4}.*$/g, '')
+    .replace(/\s*UTC[+-]\d{1,2}(:?\d{2})?.*$/g, '')
+    .trim();
+}
+
 function getSelectedEventDateText() {
   const option = document.getElementById('event-select').selectedOptions[0];
-  return option?.dataset?.date || '';
+  return formatDateWithoutTimezone(option?.dataset?.date || '');
 }
 
 function getContactData() {
@@ -1380,6 +1490,12 @@ function getContactData() {
   };
 }
 
+function getContactCarDisplayName(carName) {
+  const name = String(carName || '').trim();
+  if (!name) return '';
+  return name.endsWith('車') ? name : `${name}車`;
+}
+
 function showContactLayout() {
   const layout = document.getElementById('contact-layout');
   const data = getContactData();
@@ -1392,19 +1508,40 @@ function showContactLayout() {
     return;
   }
 
-  const titleParts = [data.eventDate, data.eventName, data.routeName].filter(Boolean);
-  let html = `<h2>${escapeHtml(titleParts.join('　'))}</h2>`;
+  let html = '<div class="contact-header">';
+
+  if (data.eventDate) {
+    html += `<div class="contact-header-item">📅 ${escapeHtml(data.eventDate)}</div>`;
+  }
+
+  if (data.eventName) {
+    html += `<div class="contact-header-item">📋 ${escapeHtml(data.eventName)}</div>`;
+  }
+
+  if (data.routeName) {
+    const routeIcon = data.routeName === '帰り' ? '⬅️' : '➡️';
+    html += `<div class="contact-header-item">${routeIcon} ${escapeHtml(data.routeName)}</div>`;
+  }
+
+  html += '</div>';
+  html += '<div class="contact-cards">';
 
   data.cars.forEach(car => {
     html += '<div class="contact-car">';
-    html += `<div class="contact-car-title">${escapeHtml(car.carName)}</div>`;
+    html += '<div class="contact-car-icon">🚗</div>';
+    html += `<div class="contact-car-title">${escapeHtml(getContactCarDisplayName(car.carName))}</div>`;
+    html += '<div class="contact-members">';
 
     car.members.forEach(member => {
       html += `<div class="contact-member">・${escapeHtml(member)}</div>`;
     });
 
     html += '</div>';
+    html += '</div>';
   });
+
+  html += '</div>';
+  html += '<p class="contact-note">スクショ・共有用：車名と子ども名だけを表示</p>';
 
   layout.innerHTML = html;
   layout.classList.remove('hidden');
@@ -1417,7 +1554,7 @@ function buildContactText() {
   let text = `【${titleParts.join(' ')}】\n\n`;
 
   data.cars.forEach(car => {
-    text += `${car.carName}：${car.members.join('、')}\n`;
+    text += `${getContactCarDisplayName(car.carName)}：${car.members.join('、')}\n`;
   });
 
   return text.trim();
