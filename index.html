@@ -629,6 +629,51 @@ padding: 2px;
   background: #8b7cf6;
 }
 
+
+
+.contact-route-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-route-row {
+  border: 1px solid #e5e7eb;
+  border-radius: 11px;
+  padding: 6px;
+  background: #ffffff;
+}
+
+.contact-route-label {
+  display: inline-block;
+  min-width: 42px;
+  margin-bottom: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 14px;
+  text-align: center;
+}
+
+.contact-route-label.go {
+  background: #dbeafe;
+  color: #1e3a8a;
+  border: 1px solid #93c5fd;
+}
+
+.contact-route-label.back {
+  background: #fce7f3;
+  color: #9d174d;
+  border: 1px solid #f9a8d4;
+}
+
+.contact-route-empty {
+  color: #94a3b8;
+  font-weight: 700;
+  text-align: center;
+  padding: 3px 0;
+}
+
 .contact-empty {
   margin: 0;
   color: #666;
@@ -688,6 +733,23 @@ padding: 2px;
     padding: 3px 4px;
     border-radius: 7px;
   }
+
+  .contact-route-row {
+    padding: 5px;
+    border-radius: 9px;
+  }
+
+  .contact-route-label {
+    min-width: 36px;
+    font-size: 12px;
+    padding: 1px 6px;
+    margin-bottom: 3px;
+  }
+
+  .contact-route-pair {
+    gap: 5px;
+  }
+
 }
 
 
@@ -1646,10 +1708,15 @@ function getSelectedEventDateText() {
   return formatDateWithoutTimezone(option?.dataset?.date || '');
 }
 
-function getContactData() {
-  const eventName = getSelectedEvent();
-  const routeName = getSelectedRoute();
-  const eventDate = getSelectedEventDateText();
+function getPartClassByName(name) {
+  const child = (latestChildren || []).find(child =>
+    child.familyName === name
+  );
+
+  return getPartClass(child?.part || '');
+}
+
+function getMembersFromCurrentScreen() {
   const cars = [];
 
   document.querySelectorAll('.car:not(.disabled-car)').forEach(car => {
@@ -1662,7 +1729,7 @@ function getContactData() {
 
       const partClass = ['brass', 'woodwind', 'other'].find(className =>
         person.classList.contains(className)
-      ) || 'other';
+      ) || getPartClassByName(name);
 
       members.push({
         name,
@@ -1678,9 +1745,91 @@ function getContactData() {
     });
   });
 
+  return cars;
+}
+
+function getMembersFromSavedData(eventName, routeName) {
+  return (latestSavedData || [])
+    .filter(item =>
+      item.event === eventName &&
+      item.route === routeName &&
+      (item.members || []).length > 0
+    )
+    .map(item => ({
+      carName: item.carName,
+      members: (item.members || []).map(name => ({
+        name,
+        partClass: getPartClassByName(name)
+      }))
+    }));
+}
+
+function mergeCarsByName(cars) {
+  const map = new Map();
+
+  (cars || []).forEach(car => {
+    if (!car.carName) return;
+
+    if (!map.has(car.carName)) {
+      map.set(car.carName, {
+        carName: car.carName,
+        members: []
+      });
+    }
+
+    map.get(car.carName).members.push(...(car.members || []));
+  });
+
+  return [...map.values()];
+}
+
+function getRouteCarsForContact(routeName) {
+  const eventName = getSelectedEvent();
+
+  if (routeName === getSelectedRoute()) {
+    return mergeCarsByName(getMembersFromCurrentScreen());
+  }
+
+  return mergeCarsByName(getMembersFromSavedData(eventName, routeName));
+}
+
+function getContactData() {
+  const eventName = getSelectedEvent();
+  const routeName = getSelectedRoute();
+  const eventDate = getSelectedEventDateText();
+  const cars = getMembersFromCurrentScreen();
+
   return {
     eventName,
     routeName,
+    eventDate,
+    cars
+  };
+}
+
+function getContactPairData() {
+  const eventName = getSelectedEvent();
+  const eventDate = getSelectedEventDateText();
+  const goCars = getRouteCarsForContact('行き');
+  const backCars = getRouteCarsForContact('帰り');
+  const carNames = [...new Set([
+    ...goCars.map(car => car.carName),
+    ...backCars.map(car => car.carName)
+  ])];
+
+  const goMap = new Map(goCars.map(car => [car.carName, car.members]));
+  const backMap = new Map(backCars.map(car => [car.carName, car.members]));
+
+  const cars = sortContactCarsByName(
+    carNames.map(carName => ({
+      carName,
+      goMembers: goMap.get(carName) || [],
+      backMembers: backMap.get(carName) || []
+    }))
+  );
+
+  return {
+    eventName,
     eventDate,
     cars
   };
@@ -1702,9 +1851,19 @@ function sortContactCarsByName(cars) {
   );
 }
 
+function buildContactMembersHtml(members) {
+  if (!members || members.length === 0) {
+    return '<div class="contact-route-empty">—</div>';
+  }
+
+  return members.map(member =>
+    `<div class="contact-member ${escapeHtml(member.partClass)}">${escapeHtml(member.name)}</div>`
+  ).join('');
+}
+
 function showContactLayout() {
   const layout = document.getElementById('contact-layout');
-  const data = getContactData();
+  const data = getContactPairData();
 
   if (!layout) return;
 
@@ -1720,30 +1879,36 @@ function showContactLayout() {
     html += `<div class="contact-header-item contact-header-event">📋 ${escapeHtml(data.eventName)}</div>`;
   }
 
-  if (data.routeName) {
-    const routeIcon = data.routeName === '帰り' ? '⬅️' : '➡️';
-    html += `<div class="contact-header-item contact-header-route">${routeIcon} ${escapeHtml(data.routeName)}</div>`;
-  }
-
+  html += '<div class="contact-header-item contact-header-route">➡️ 行き ／ ⬅️ 帰り</div>';
   html += '</div>';
   html += '<div class="contact-cards">';
 
-  sortContactCarsByName(data.cars).forEach(car => {
+  data.cars.forEach(car => {
     html += '<div class="contact-car">';
     html += '<div class="contact-car-icon">🚗</div>';
     html += `<div class="contact-car-title">${escapeHtml(getContactCarDisplayName(car.carName))}</div>`;
-    html += '<div class="contact-members">';
+    html += '<div class="contact-route-pair">';
 
-    car.members.forEach(member => {
-      html += `<div class="contact-member ${escapeHtml(member.partClass)}">${escapeHtml(member.name)}</div>`;
-    });
+    html += '<div class="contact-route-row">';
+    html += '<span class="contact-route-label go">行き</span>';
+    html += '<div class="contact-members">';
+    html += buildContactMembersHtml(car.goMembers);
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="contact-route-row">';
+    html += '<span class="contact-route-label back">帰り</span>';
+    html += '<div class="contact-members">';
+    html += buildContactMembersHtml(car.backMembers);
+    html += '</div>';
+    html += '</div>';
 
     html += '</div>';
     html += '</div>';
   });
 
   html += '</div>';
-  html += '<p class="contact-note">スクショ・共有用：車名と子ども名だけを表示</p>';
+  html += '<p class="contact-note">スクショ・共有用：車ごとに行き・帰りをセット表示</p>';
 
   layout.innerHTML = html;
   layout.classList.remove('hidden');
@@ -1757,14 +1922,19 @@ function hideContactLayout() {
   layout.classList.add('hidden');
 }
 
-function buildContactText() {
-  const data = getContactData();
-  const titleParts = [data.eventName, data.routeName].filter(Boolean);
-  let text = `【${titleParts.join('・')}】\n\n`;
+function formatContactMemberNames(members) {
+  if (!members || members.length === 0) return '—';
+  return members.map(member => member.name).join('、');
+}
 
-  sortContactCarsByName(data.cars).forEach(car => {
-    const memberNames = car.members.map(member => member.name);
-    text += `${getContactCarDisplayName(car.carName)}：${memberNames.join('、')}\n`;
+function buildContactText() {
+  const data = getContactPairData();
+  let text = `【${data.eventName || ''}・行き帰り】\n\n`;
+
+  data.cars.forEach(car => {
+    text += `${getContactCarDisplayName(car.carName)}\n`;
+    text += `行き：${formatContactMemberNames(car.goMembers)}\n`;
+    text += `帰り：${formatContactMemberNames(car.backMembers)}\n\n`;
   });
 
   return text.trim();
