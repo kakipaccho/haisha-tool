@@ -742,6 +742,96 @@ padding: 2px;
   }
 }
 
+
+/* ===== ボタンを少しやさしい見た目に調整 ===== */
+button {
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
+  color: #075985;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.14);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
+}
+
+button:hover {
+  background: linear-gradient(180deg, #f0f9ff 0%, #bae6fd 100%);
+  box-shadow: 0 3px 9px rgba(15, 23, 42, 0.18);
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.16);
+}
+
+.status-bar button:nth-of-type(1) {
+  background: linear-gradient(180deg, #ecfdf5 0%, #bbf7d0 100%);
+  color: #166534;
+}
+
+.status-bar button:nth-of-type(2) {
+  background: linear-gradient(180deg, #fff7ed 0%, #fed7aa 100%);
+  color: #9a3412;
+}
+
+.view-control-area button,
+.car-toggle-button,
+.menu-area button {
+  border: 1px solid rgba(14, 165, 233, 0.25);
+}
+
+.view-control-area button:nth-child(5) {
+  background: linear-gradient(180deg, #fefce8 0%, #fde68a 100%);
+  color: #92400e;
+}
+
+.view-control-area button:nth-child(6) {
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #334155;
+}
+
+.view-control-area button:nth-child(7) {
+  background: linear-gradient(180deg, #f5f3ff 0%, #ddd6fe 100%);
+  color: #5b21b6;
+}
+
+/* ===== 下部管理エリア ===== */
+.bottom-menu-area {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 2px dashed #cbd5e1;
+}
+
+.bottom-menu-area .menu-area {
+  margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+  .bottom-menu-area {
+    margin-top: 14px;
+    padding-top: 10px;
+  }
+}
+
+/* ===== 連絡用表示の区分を少し強調 ===== */
+.contact-header-route {
+  border-width: 3px;
+  font-size: 25px;
+  padding: 10px 18px;
+  outline: 2px solid rgba(245, 158, 11, 0.18);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .contact-header-route {
+    border-width: 3px;
+    font-size: 21px;
+    padding: 8px 13px;
+  }
+}
+
+
   </style>
 </head>
 
@@ -760,6 +850,55 @@ padding: 2px;
   <div class="container">
 
     <div class="top-area">
+<div class="waiting-area">
+ <!-- <h2>👦 未配置の子</h2> -->
+
+       <div class="dropzone" id="people-area">
+
+        </div>
+
+<div class="control-area">
+  <label>予定選択：</label>
+  <select id="event-select">
+    <option value="">読み込み中...</option>
+  </select>
+
+    <label>区分：</label>
+<select id="route-select">
+  <option value="行き">行き</option>
+  <option value="帰り">帰り</option>
+</select>
+
+  <div class="view-control-area">
+    <button type="button" onclick="openAllCars()">🔽 全部開く</button>
+    <button type="button" onclick="closeAllCars()">🔼 全部閉じる</button>
+    <button type="button" id="active-only-button" onclick="toggleActiveOnlyView()">🚗 使用車だけ表示</button>
+    <button type="button" onclick="resetChildPlacement()">↩️ 配置リセット</button>
+    <button type="button" onclick="showContactLayout()">📷 連絡用表示</button>
+    <button type="button" onclick="copyContactText()">📋 コピー用テキスト</button>
+    <button type="button" onclick="hideContactLayout()">🙈 非表示</button>
+  </div>
+
+</div>
+
+<div id="contact-layout" class="contact-layout hidden"></div>
+
+    </div>
+<div class="car-sections">
+
+  <section class="car-section active-section">
+    <h2>✅ 使う車</h2>
+    <div id="active-cars" class="cars-area"></div>
+  </section>
+
+  <section class="car-section inactive-section">
+    <h2>🚫 使わない車</h2>
+    <div id="inactive-cars" class="cars-area"></div>
+  </section>
+
+</div>
+
+<div class="bottom-menu-area">
       <div class="menu-area">
       <details>
   　　<summary>🚗 車管理</summary>
@@ -799,52 +938,6 @@ padding: 2px;
       </div>
       </details>
       </div>
-
-<div class="waiting-area">
- <!-- <h2>👦 未配置の子</h2> -->
-
-       <div class="dropzone" id="people-area">
-
-        </div>
-
-<div class="control-area">
-  <label>予定を選ぶ：</label>
-  <select id="event-select">
-    <option value="">読み込み中...</option>
-  </select>
-
-    <label>区分：</label>
-<select id="route-select">
-  <option value="行き">行き</option>
-  <option value="帰り">帰り</option>
-</select>
-
-  <div class="view-control-area">
-    <button type="button" onclick="openAllCars()">全部開く</button>
-    <button type="button" onclick="closeAllCars()">全部閉じる</button>
-    <button type="button" id="active-only-button" onclick="toggleActiveOnlyView()">使用車だけ表示</button>
-    <button type="button" onclick="resetChildPlacement()">配置リセット</button>
-    <button type="button" onclick="showContactLayout()">連絡用表示</button>
-    <button type="button" onclick="copyContactText()">コピー用テキスト</button>
-  </div>
-
-</div>
-
-<div id="contact-layout" class="contact-layout hidden"></div>
-
-    </div>
-<div class="car-sections">
-
-  <section class="car-section active-section">
-    <h2>✅ 使う車</h2>
-    <div id="active-cars" class="cars-area"></div>
-  </section>
-
-  <section class="car-section inactive-section">
-    <h2>🚫 使わない車</h2>
-    <div id="inactive-cars" class="cars-area"></div>
-  </section>
-
 </div>
 
 </div>
@@ -1427,7 +1520,7 @@ function applyActiveOnlyView() {
   }
 
   if (button) {
-    button.textContent = isActiveOnlyView ? '全車表示' : '使用車だけ表示';
+    button.textContent = isActiveOnlyView ? '🚙 全車表示' : '🚗 使用車だけ表示';
   }
 }
 
@@ -1587,6 +1680,13 @@ function showContactLayout() {
   layout.innerHTML = html;
   layout.classList.remove('hidden');
   layout.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+
+function hideContactLayout() {
+  const layout = document.getElementById('contact-layout');
+  if (!layout) return;
+  layout.classList.add('hidden');
 }
 
 function buildContactText() {
