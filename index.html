@@ -1692,6 +1692,16 @@ function getContactCarDisplayName(carName) {
   return name.endsWith('車') ? name : `${name}車`;
 }
 
+function sortContactCarsByName(cars) {
+  return [...(cars || [])].sort((a, b) =>
+    getContactCarDisplayName(a.carName).localeCompare(
+      getContactCarDisplayName(b.carName),
+      'ja',
+      { numeric: true, sensitivity: 'base' }
+    )
+  );
+}
+
 function showContactLayout() {
   const layout = document.getElementById('contact-layout');
   const data = getContactData();
@@ -1718,7 +1728,7 @@ function showContactLayout() {
   html += '</div>';
   html += '<div class="contact-cards">';
 
-  data.cars.forEach(car => {
+  sortContactCarsByName(data.cars).forEach(car => {
     html += '<div class="contact-car">';
     html += '<div class="contact-car-icon">🚗</div>';
     html += `<div class="contact-car-title">${escapeHtml(getContactCarDisplayName(car.carName))}</div>`;
@@ -1752,7 +1762,7 @@ function buildContactText() {
   const titleParts = [data.eventName, data.routeName].filter(Boolean);
   let text = `【${titleParts.join('・')}】\n\n`;
 
-  data.cars.forEach(car => {
+  sortContactCarsByName(data.cars).forEach(car => {
     const memberNames = car.members.map(member => member.name);
     text += `${getContactCarDisplayName(car.carName)}：${memberNames.join('、')}\n`;
   });
