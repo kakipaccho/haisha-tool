@@ -841,7 +841,6 @@ button:active {
   <h1>🚗 配車ツール</h1>
 
   <div class="status-bar">
-  <p id="selected-name">選択中：なし</p>
 　<p id="seat-summary">確保席：0席 / 残席：0席</p>
   <button onclick="saveToSheet()">💾 保存</button>
   <button onclick="confirmDispatch()">✅ 配車確定</button>
@@ -1084,7 +1083,9 @@ function setCarActive(car, isActive) {
   if (isActive) {
     car.classList.remove('disabled-car');
     activeCarsArea.appendChild(car);
+    autoPlaceParentChild(car);
   } else {
+    returnAllChildrenToWaitingArea(car);
     car.classList.add('disabled-car');
     inactiveCarsArea.appendChild(car);
   }
@@ -1092,6 +1093,63 @@ function setCarActive(car, isActive) {
   if (typeof car.updateToggleButtonText === 'function') {
     car.updateToggleButtonText();
   }
+}
+
+function normalizeFamilyName(value) {
+  return String(value || '')
+    .replace(/^🚗/, '')
+    .replace(/車$/, '')
+    .trim();
+}
+
+function autoPlaceParentChild(car) {
+  const peopleArea = document.getElementById('people-area');
+  const zone = car.querySelector('.dropzone');
+  const carName = normalizeFamilyName(getCarName(car));
+
+  if (!peopleArea || !zone || !carName) return;
+
+  const alreadyInThisCar = [...zone.querySelectorAll('.person')].some(person =>
+    normalizeFamilyName(person.textContent) === carName
+  );
+
+  if (alreadyInThisCar) return;
+
+  const targetPerson = [...peopleArea.querySelectorAll('.person')].find(person =>
+    normalizeFamilyName(person.textContent) === carName
+  );
+
+  if (!targetPerson) return;
+
+  const capacity = Number(car.dataset.capacity) || 0;
+  const peopleCount = zone.querySelectorAll('.person').length;
+
+  if (capacity > 0 && peopleCount >= capacity) return;
+
+  targetPerson.classList.remove('selected');
+  zone.appendChild(targetPerson);
+
+  if (selectedPerson === targetPerson) {
+    selectedPerson = null;
+  }
+}
+
+function returnAllChildrenToWaitingArea(car) {
+  const peopleArea = document.getElementById('people-area');
+  const zone = car.querySelector('.dropzone');
+
+  if (!peopleArea || !zone) return;
+
+  zone.querySelectorAll('.person').forEach(person => {
+    person.classList.remove('selected');
+    peopleArea.appendChild(person);
+
+    if (selectedPerson === person) {
+      selectedPerson = null;
+    }
+  });
+
+  draggedItem = null;
 }
 
 function createCars(data, children, selectedEvent, savedData = []) {
@@ -1347,8 +1405,8 @@ function setupCarToggle(car) {
 
   car.updateToggleButtonText = function () {
     button.textContent = car.classList.contains('disabled-car')
-      ? '使う'
-      : '使わない';
+      ? '🚗 使う'
+      : '🚫 使わない';
   };
 
   button.addEventListener('click', (e) => {
