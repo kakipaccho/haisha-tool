@@ -555,6 +555,20 @@ padding: 2px;
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.18);
 }
 
+.contact-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #ffffff;
+}
+
+.contact-scroll-area {
+  max-height: 58vh;
+  overflow-y: auto;
+  padding: 4px 4px 8px 0;
+  overscroll-behavior: contain;
+}
+
 .contact-cards {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -696,6 +710,11 @@ padding: 2px;
 
   .contact-header {
     gap: 6px;
+  }
+
+  .contact-scroll-area {
+    max-height: 60vh;
+    padding-right: 2px;
   }
 
   .contact-header-item {
@@ -1881,6 +1900,7 @@ function showContactLayout() {
 
   html += '<div class="contact-header-item contact-header-route">➡️ 行き ／ ⬅️ 帰り</div>';
   html += '</div>';
+  html += '<div class="contact-scroll-area">';
   html += '<div class="contact-cards">';
 
   data.cars.forEach(car => {
@@ -1908,7 +1928,8 @@ function showContactLayout() {
   });
 
   html += '</div>';
-  html += '<p class="contact-note">スクショ・共有用：車ごとに行き・帰りをセット表示</p>';
+  html += '</div>';
+  html += '<p class="contact-note">スクショ・共有用：ヘッダー固定／車カードだけスクロール</p>';
 
   layout.innerHTML = html;
   layout.classList.remove('hidden');
@@ -1941,7 +1962,7 @@ function buildContactText() {
 }
 
 function copyContactText() {
-  const data = getContactData();
+  const data = getContactPairData();
 
   if (data.cars.length === 0) {
     alert('コピーできる配車がありません。');
