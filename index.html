@@ -773,6 +773,62 @@ padding: 2px;
 }
 
 
+/* ===== 上部操作エリア・プルダウン ===== */
+.control-area {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+  margin: 8px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.control-area label {
+  display: inline-block;
+  margin: 4px 4px 4px 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #334155;
+}
+
+#event-select,
+#route-select {
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#event-select {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e3a8a;
+}
+
+#route-select {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.waiting-area {
+  margin-top: 8px;
+}
+
+.car-section {
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 600px) {
+  .control-area {
+    padding: 8px;
+  }
+
+  .control-area label {
+    font-size: 13px;
+  }
+}
+
 /* ===== 車カード折りたたみ ===== */
 .car-header {
   cursor: pointer;
@@ -931,24 +987,18 @@ button:active {
   <div class="container">
 
     <div class="top-area">
-<div class="waiting-area">
- <!-- <h2>👦 未配置の子</h2> -->
-
-       <div class="dropzone" id="people-area">
-
-        </div>
 
 <div class="control-area">
-  <label>予定選択：</label>
+  <label for="event-select">予定選択：</label>
   <select id="event-select">
     <option value="">読み込み中...</option>
   </select>
 
-    <label>区分：</label>
-<select id="route-select">
-  <option value="行き">行き</option>
-  <option value="帰り">帰り</option>
-</select>
+  <label for="route-select">区分：</label>
+  <select id="route-select">
+    <option value="行き">行き</option>
+    <option value="帰り">帰り</option>
+  </select>
 
   <div class="view-control-area">
     <button type="button" onclick="openAllCars()">🔽 全部開く</button>
@@ -959,7 +1009,10 @@ button:active {
     <button type="button" onclick="copyContactText()">📋 コピー用テキスト</button>
     <button type="button" onclick="hideContactLayout()">🙈 非表示</button>
   </div>
+</div>
 
+<div class="waiting-area">
+  <div class="dropzone" id="people-area"></div>
 </div>
 
 <div id="contact-layout" class="contact-layout hidden"></div>
@@ -968,12 +1021,10 @@ button:active {
 <div class="car-sections">
 
   <section class="car-section active-section">
-    <h2>✅ 使う車</h2>
     <div id="active-cars" class="cars-area"></div>
   </section>
 
   <section class="car-section inactive-section">
-    <h2>🚫 使わない車</h2>
     <div id="inactive-cars" class="cars-area"></div>
   </section>
 
@@ -1034,6 +1085,9 @@ let latestData = [];
 let latestChildren = [];
 let latestSavedData = [];
 let isActiveOnlyView = localStorage.getItem('dispatchActiveOnlyView') === 'true';
+
+// 未配置ボックスも、車と同じくドラッグ・タップ移動の行き先として使う
+setupDropzone(document.getElementById('people-area'));
 
 loadEvents();
 
