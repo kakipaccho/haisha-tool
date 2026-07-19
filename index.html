@@ -330,8 +330,7 @@ padding: 2px;
     gap: 8px;
     align-items: flex-start;
   }
-
-
+}
 
 @media (max-width: 600px) {
   .waiting-area {
@@ -966,6 +965,40 @@ button:active {
     border-width: 3px;
     font-size: 21px;
     padding: 8px 13px;
+  }
+}
+
+
+/* ===== メイン画面を縦並びに固定 ===== */
+.container {
+  display: block !important;
+  width: 100%;
+}
+
+.top-area,
+.car-sections,
+.bottom-menu-area {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.car-sections {
+  margin-top: 8px;
+}
+
+.cars-area {
+  margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  .container {
+    display: block !important;
+  }
+
+  .top-area,
+  .car-sections,
+  .bottom-menu-area {
+    width: 100%;
   }
 }
 
