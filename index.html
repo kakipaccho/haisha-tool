@@ -772,6 +772,39 @@ padding: 2px;
 }
 
 
+/* ===== 行き・帰りのメンバー完全一致時のまとめ表示 ===== */
+.contact-route-matched {
+  border: 1px solid #e5e7eb;
+  border-radius: 11px;
+  padding: 6px;
+  background: #ffffff;
+}
+
+.contact-route-labels-inline {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.contact-route-labels-inline .contact-route-label {
+  margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+  .contact-route-matched {
+    padding: 5px;
+    border-radius: 9px;
+  }
+
+  .contact-route-labels-inline {
+    gap: 5px;
+    margin-bottom: 4px;
+  }
+}
+
+
 /* ===== 上部操作エリア・プルダウン ===== */
 .control-area {
   background: #ffffff;
@@ -1968,6 +2001,26 @@ function buildContactMembersHtml(members) {
   ).join('');
 }
 
+function normalizeMemberNameForCompare(name) {
+  return String(name || '').trim();
+}
+
+function haveExactlySameMembers(goMembers, backMembers) {
+  if (!goMembers || !backMembers) return false;
+  if (goMembers.length === 0 || backMembers.length === 0) return false;
+  if (goMembers.length !== backMembers.length) return false;
+
+  const goNames = goMembers
+    .map(member => normalizeMemberNameForCompare(member.name))
+    .sort((a, b) => a.localeCompare(b, 'ja', { numeric: true, sensitivity: 'base' }));
+
+  const backNames = backMembers
+    .map(member => normalizeMemberNameForCompare(member.name))
+    .sort((a, b) => a.localeCompare(b, 'ja', { numeric: true, sensitivity: 'base' }));
+
+  return goNames.every((name, index) => name === backNames[index]);
+}
+
 function showContactLayout() {
   const layout = document.getElementById('contact-layout');
   const data = getContactPairData();
@@ -1996,19 +2049,31 @@ function showContactLayout() {
     html += `<div class="contact-car-title">${escapeHtml(getContactCarDisplayName(car.carName))}</div>`;
     html += '<div class="contact-route-pair">';
 
-    html += '<div class="contact-route-row">';
-    html += '<span class="contact-route-label go">行き</span>';
-    html += '<div class="contact-members">';
-    html += buildContactMembersHtml(car.goMembers);
-    html += '</div>';
-    html += '</div>';
+    if (haveExactlySameMembers(car.goMembers, car.backMembers)) {
+      html += '<div class="contact-route-matched">';
+      html += '<div class="contact-route-labels-inline">';
+      html += '<span class="contact-route-label go">行き</span>';
+      html += '<span class="contact-route-label back">帰り</span>';
+      html += '</div>';
+      html += '<div class="contact-members">';
+      html += buildContactMembersHtml(car.goMembers);
+      html += '</div>';
+      html += '</div>';
+    } else {
+      html += '<div class="contact-route-row">';
+      html += '<span class="contact-route-label go">行き</span>';
+      html += '<div class="contact-members">';
+      html += buildContactMembersHtml(car.goMembers);
+      html += '</div>';
+      html += '</div>';
 
-    html += '<div class="contact-route-row">';
-    html += '<span class="contact-route-label back">帰り</span>';
-    html += '<div class="contact-members">';
-    html += buildContactMembersHtml(car.backMembers);
-    html += '</div>';
-    html += '</div>';
+      html += '<div class="contact-route-row">';
+      html += '<span class="contact-route-label back">帰り</span>';
+      html += '<div class="contact-members">';
+      html += buildContactMembersHtml(car.backMembers);
+      html += '</div>';
+      html += '</div>';
+    }
 
     html += '</div>';
     html += '</div>';
@@ -2041,8 +2106,13 @@ function buildContactText() {
 
   data.cars.forEach(car => {
     text += `${getContactCarDisplayName(car.carName)}\n`;
-    text += `行き：${formatContactMemberNames(car.goMembers)}\n`;
-    text += `帰り：${formatContactMemberNames(car.backMembers)}\n\n`;
+
+    if (haveExactlySameMembers(car.goMembers, car.backMembers)) {
+      text += `行き／帰り：${formatContactMemberNames(car.goMembers)}\n\n`;
+    } else {
+      text += `行き：${formatContactMemberNames(car.goMembers)}\n`;
+      text += `帰り：${formatContactMemberNames(car.backMembers)}\n\n`;
+    }
   });
 
   return text.trim();
