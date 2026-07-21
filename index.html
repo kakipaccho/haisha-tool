@@ -793,15 +793,28 @@ padding: 2px;
 }
 
 @media (max-width: 600px) {
+
   .contact-route-matched {
     padding: 5px;
     border-radius: 9px;
   }
 
   .contact-route-labels-inline {
-    gap: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
     margin-bottom: 4px;
+    flex-wrap: nowrap;
   }
+
+  .contact-route-labels-inline .contact-route-label {
+    min-width: 30px;
+    padding: 1px 4px;
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
 }
 
 
